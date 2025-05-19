@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="purple_200">#FFBB86FC</color>
+    <color name="purple_500">#FF6200EE</color>
+    <color name="purple_700">#FF3700B3</color>
+    <color name="teal_200">#FF03DAC5</color>
+    <color name="teal_700">#FF018786</color>
+    <color name="gray_background">#FAFAFA</color>
+    <color name="dark_gray_text">#333333</color>
+
+    <!-- Gradient for Sign In / Sign Up -->
+    <color name="gradient_start">#FF512F</color> <!-- Red-Orange -->
+    <color name="gradient_end">#DD2476</color>   <!-- Deep Magenta -->
+
+    <!-- Victim Theme (Requester) -->
+    <color name="victim_primary">#D32F2F</color> <!-- Strong Red -->
+    <color name="victim_secondary">#FFCDD2</color> <!-- Light Red -->
+    <color name="victim_warning">#FFC107</color> <!-- Amber -->
+
+    <!-- Responder Theme -->
+    <color name="responder_primary">#1976D2</color> <!-- Strong Blue -->
+    <color name="responder_secondary">#BBDEFB</color> <!-- Light Blue -->
+    <color name="responder_success">#4CAF50</color> <!-- Green -->
+    <color name="alert_active">#F44336</color> <!-- Alert Red -->
+
+    <!-- Lock Screen Overlay -->
+    <color name="overlay_black_translucent">#80000000</color> <!-- Black 50% opacity -->
+
+
+</resources>
