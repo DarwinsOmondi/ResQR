@@ -15,10 +15,14 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.example.resqr.QRCode.QRCodeScreen
 import com.example.resqr.clienthome.ClientHomeScreen
+import com.example.resqr.clientprofile.ProfileScreen
 import com.example.resqr.signin.SignInScreen
 import com.example.resqr.signup.SignUpScreen
 import com.example.resqr.ui.theme.ResQRTheme
+import com.example.resqr.utils.supabaseClient
+import io.github.jan.supabase.auth.auth
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -27,8 +31,8 @@ class MainActivity : ComponentActivity() {
         setContent {
             ResQRTheme {
                 val navController = rememberNavController()
-                 ClientHomeScreen(navController)
-                //ResQR()
+                //ClientHomeScreen(navController)
+                ResQR()
             }
         }
     }
@@ -36,7 +40,8 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 fun ResQR() {
-    val startDestination = "signup"
+    val startDestination =
+        if (supabaseClient.auth.currentSessionOrNull() != null) "home" else "signin"
     val navController = rememberNavController()
     NavHost(
         navController = navController,
@@ -47,6 +52,15 @@ fun ResQR() {
         }
         composable("signin") {
             SignInScreen(navController)
+        }
+        composable("home") {
+            ClientHomeScreen(navController)
+        }
+        composable("profile") {
+            ProfileScreen(navController)
+        }
+        composable("qrcode") {
+            QRCodeScreen(navController)
         }
     }
 }

@@ -1,5 +1,6 @@
 package com.example.resqr.signin
 
+import android.util.Log
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
@@ -21,6 +22,7 @@ class SigningRepository(private val supabaseClient: SupabaseClient) {
                 Result.failure(Exception("Sign in failed"))
             }
         } catch (e: Exception) {
+            Log.e("SignIn","${e.message}")
             val message = e.message ?: ""
             val userMessage = when {
                 message.contains(

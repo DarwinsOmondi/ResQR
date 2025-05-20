@@ -369,6 +369,9 @@ fun SignUpScreen(navHostController: NavHostController) {
                                             password,
                                             role
                                         )
+                                        if (uiState.success != null) {
+                                            navHostController.navigate("home")
+                                        }
                                     },
                                     Modifier
                                         .fillMaxWidth(),

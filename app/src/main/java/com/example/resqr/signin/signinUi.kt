@@ -227,6 +227,9 @@ fun SignInScreen(navHostController: NavHostController) {
                                             email,
                                             password
                                         )
+                                        if (uiState.value.success != null) {
+                                            navHostController.navigate("home")
+                                        }
                                     },
                                     Modifier
                                         .fillMaxWidth(),

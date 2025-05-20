@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +8,9 @@ plugins {
 }
 
 android {
+    buildFeatures {
+        buildConfig = true
+    }
     namespace = "com.example.resqr"
     compileSdk = 35
 
@@ -15,6 +20,23 @@ android {
         targetSdk = 35
         versionCode = 1
         versionName = "1.0"
+
+        val properties = Properties()
+        val localPropertiesFile = rootProject.file("local.properties")
+
+        if (localPropertiesFile.exists()) {
+            properties.load(localPropertiesFile.inputStream())
+        }
+        buildConfigField(
+            "String",
+            "SUPABASE_URL",
+            "\"${properties.getProperty("SUPABASE_URL", "")}\""
+        )
+        buildConfigField(
+            "String",
+            "SUPABASE_KEY",
+            "\"${properties.getProperty("SUPABASE_KEY", "")}\""
+        )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
@@ -86,5 +108,12 @@ dependencies {
     implementation("com.google.accompanist:accompanist-systemuicontroller:0.30.1")
 
     //map
-    implementation ("org.osmdroid:osmdroid-android:6.1.20")
+    implementation("org.osmdroid:osmdroid-android:6.1.20")
+
+    //coil
+    implementation ("io.coil-kt:coil-compose:2.6.0")
+
+    //or code
+    implementation ("com.google.zxing:core:3.5.2")
+    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
 }

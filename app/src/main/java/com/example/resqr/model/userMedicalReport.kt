@@ -6,8 +6,8 @@ import kotlinx.serialization.Serializable
 data class UserMedicalData(
     val blood_type: String,
     val gender: String,
-    val allergies: List<allergy>,
-    val medications: List<medication>,
+    val allergies: List<Allergy>,
+    val medications: List<Medication>,
     val conditions: String,
-    val emergency_contact: List<emergency_contact>
+    val emergency_contact: List<Emergency_contact>
 )
