@@ -33,34 +33,39 @@ fun BannerMessage() {
     val supabaseClient = supabaseClient
     val clientRepository = ClientRepository(supabaseClient)
     val clientViewModel: ClientViewmodel = viewModel(factory = ClientHomeFactory(clientRepository))
+    val uiState by clientViewModel.uiState.collectAsState()
     var userMessage by remember { mutableStateOf("") }
-    var uiState = clientViewModel.uiState.collectAsState()
     var showBanner by remember { mutableStateOf(false) }
-    uiState.value.error?.let { errorMessage ->
-        userMessage = errorMessage
-        if (userMessage.isNotEmpty()) {
+    var lastDisplayedMessage by remember { mutableStateOf("") }
+
+    // Update banner when a new message arrives
+    LaunchedEffect(uiState) {
+        val newMessage = uiState.error ?: uiState.saveSuccess
+        if (newMessage != null && newMessage.isNotEmpty() && newMessage != lastDisplayedMessage) {
+            userMessage = newMessage
             showBanner = true
+            lastDisplayedMessage = newMessage
         }
     }
-    uiState.value.saveSuccess?.let { successMessage ->
-        userMessage = successMessage
-        if (userMessage.isNotEmpty()) {
-            showBanner = true
-        }
-    }
+
     if (showBanner) {
+        // Auto-dismiss after 4 seconds
         LaunchedEffect(userMessage) {
             delay(4000)
             showBanner = false
+            clientViewModel.clearMessage() // Clear message in ViewModel
         }
+
         BannerCard(
             message = userMessage,
             backgroundColor = Color(0xFFBBDEFB),
-            onDismiss = { showBanner = false }
+            onDismiss = {
+                showBanner = false
+                clientViewModel.clearMessage() // Clear message in ViewModel
+            }
         )
     }
 }
-
 
 @Composable
 fun BannerCard(
@@ -98,4 +103,5 @@ fun BannerCard(
             }
         }
     }
+
 }

@@ -16,6 +16,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -89,7 +90,7 @@ fun SignInScreen(navHostController: NavHostController) {
                                         fontSize = 24.sp
                                     ),
                                     color = if (navHostController.currentDestination?.route == "signup") {
-                                        Color.Red
+                                        Color.White
                                     } else {
                                         Color.Black
                                     }
@@ -109,7 +110,7 @@ fun SignInScreen(navHostController: NavHostController) {
                                         fontSize = 24.sp
                                     ),
                                     color = if (navHostController.currentDestination?.route == "signin") {
-                                        Color.Red
+                                        Color.White
                                     } else {
                                         Color.Black
                                     }
@@ -234,8 +235,16 @@ fun SignInScreen(navHostController: NavHostController) {
                                     Modifier
                                         .fillMaxWidth(),
                                     shape = RoundedCornerShape(5.dp),
-                                    enabled = buttonState
-                                ) { Text(if (uiState.value.isLoading) "Signing In..." else "Sign In") }
+                                    enabled = buttonState,
+                                    colors = ButtonDefaults.buttonColors(
+                                        Color(0xFFFF512F)
+                                    )
+                                ) {
+                                    Text(
+                                        if (uiState.value.isLoading) "Signing In..." else "Sign In",
+                                        color = Color.Black
+                                    )
+                                }
                                 Spacer(Modifier.height(16.dp))
                                 uiState.value.error?.let { errorMessage ->
                                     Text(errorMessage, color = Color.Red)

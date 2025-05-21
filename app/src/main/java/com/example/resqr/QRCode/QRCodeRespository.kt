@@ -6,6 +6,7 @@ import androidx.core.graphics.set
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 
+
 class QRCodeRepository {
     fun generateQRCode(data: String, size: Int = 512): Bitmap {
         val writer = QRCodeWriter()

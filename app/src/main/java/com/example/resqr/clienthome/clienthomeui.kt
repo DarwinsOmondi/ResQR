@@ -14,6 +14,8 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.selection.selectable
+import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
@@ -26,6 +28,7 @@ import androidx.compose.material.icons.filled.MoodBad
 import androidx.compose.material.icons.filled.Person2
 import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
@@ -40,8 +43,10 @@ import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.RadioButton
+import androidx.compose.material3.RadioButtonDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.rememberModalBottomSheetState
@@ -56,6 +61,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.Role
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
@@ -92,10 +98,9 @@ fun ClientHomeScreen(navHostController: NavHostController) {
     var gender by remember { mutableStateOf("") }
     var allergyList by remember { mutableStateOf(mutableListOf<Allergy>()) }
     var conditions by remember { mutableStateOf("") }
-    var showBanner by remember { mutableStateOf(true) }
 
-
-    var selectedGender by remember { mutableStateOf("male") }
+    val genderOptions = listOf("male", "female", "other")
+    var selectedOption by remember { mutableStateOf(genderOptions[0]) }
     var blooddropdownstate by remember { mutableStateOf(false) }
     var bloodtypelist = listOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
 
@@ -165,7 +170,7 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                 content = {
                     Icon(
                         Icons.Default.MedicalInformation,
-                        contentDescription = "Update user medical data",
+                        contentDescription = "Create your medical Report",
                         tint = Color.White
                     )
                 },
@@ -231,7 +236,6 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                                             setTileSource(TileSourceFactory.MAPNIK)
                                                             controller.setZoom(22.0)
                                                             setMultiTouchControls(true)
-
                                                             val locationOverlay =
                                                                 MyLocationNewOverlay(this).apply { enableMyLocation() }
                                                             overlays.add(locationOverlay)
@@ -279,7 +283,7 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                     containerColor = Color.White,
                     content = {
                         Text(
-                            "Update user medical data",
+                            "Create Your Medical Report",
                             style = TextStyle(
                                 color = Color.Black,
                                 fontWeight = FontWeight.Bold,
@@ -299,7 +303,8 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                             prefix = {
                                 Icon(
                                     Icons.Default.Bloodtype,
-                                    contentDescription = "Blood type"
+                                    contentDescription = "Blood type",
+                                    tint = Color.Red
                                 )
                             },
                             trailingIcon = {
@@ -310,13 +315,22 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                     content = {
                                         Icon(
                                             Icons.Default.ArrowDropDown,
-                                            contentDescription = "Dropdown"
+                                            contentDescription = "Dropdown",
+                                            tint = Color.Red
                                         )
                                     }
                                 )
                             },
                             readOnly = true,
-                            label = { Text("Blood Type") }
+                            label = { Text("Blood Type", color = Color.Gray) },
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color(0xFF1976D2),
+                                unfocusedIndicatorColor = Color.Black,
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                            ),
                         )
                         //BLOOD TYPE DROP DOWN
                         DropdownMenu(
@@ -344,19 +358,31 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                             Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
-                            label = { Text("Conditions") }
+                            label = { Text("Conditions", color = Color.Gray) },
+                            colors = TextFieldDefaults.colors(
+                                focusedContainerColor = Color.Transparent,
+                                unfocusedContainerColor = Color.Transparent,
+                                focusedIndicatorColor = Color(0xFF1976D2),
+                                unfocusedIndicatorColor = Color.Black,
+                                focusedTextColor = Color.Black,
+                                unfocusedTextColor = Color.Black,
+                            ),
                         )
 
                         OutlinedButton(
                             onClick = {
                                 contactDialog = true
                             }, content = {
-                                Text("Add Emergency Contact")
+                                Text("Add Emergency Contact", color = Color.Black)
                             },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
-                            shape = RoundedCornerShape(5.dp)
+                            shape = RoundedCornerShape(5.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF1976D2),
+                                contentColor = Color.White
+                            )
                         )
                         //Emergency Contact dialog
                         if (contactDialog) {
@@ -432,11 +458,15 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                         }
                         OutlinedButton(
                             onClick = { medicationDialog = true },
-                            content = { Text("Add Medication") },
+                            content = { Text("Add Medication", color = Color.Black) },
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .padding(16.dp),
-                            shape = RoundedCornerShape(5.dp)
+                            shape = RoundedCornerShape(5.dp),
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF1976D2),
+                                contentColor = Color.White
+                            )
                         )
                         //Medication dialog
                         if (medicationDialog) {
@@ -572,7 +602,12 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                             onClick = {
                                 allergyDialog = true
                             },
-                            content = { Text("Add Allergies") })
+                            content = { Text("Add Allergies", color = Color.Black) },
+                            colors = ButtonDefaults.buttonColors(
+                                containerColor = Color(0xFF1976D2),
+                                contentColor = Color.White
+                            )
+                        )
 
                         //ALLERGIES DIALOG
                         if (allergyDialog) {
@@ -646,24 +681,40 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                             )
                         }
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .selectableGroup(),
                             horizontalArrangement = Arrangement.Center,
-                            verticalAlignment = Alignment.CenterVertically,
-                            content = {
-                                RadioButton(
-                                    selected = selectedGender == "male",
-                                    onClick = {
-                                        gender = "male"
-                                    })
-                                Text("Male")
-                                Spacer(Modifier.width(16.dp))
-                                RadioButton(
-                                    selected = selectedGender == "female",
-                                    onClick = {
-                                        gender = "female"
-                                    })
-                                Text("Female")
-                            })
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            genderOptions.forEach { text ->
+                                Row(
+                                    modifier = Modifier.selectable(
+                                        selected = (text == selectedOption),
+                                        onClick = {
+                                            selectedOption = text
+                                            gender =
+                                                text
+                                        },
+                                        role = Role.RadioButton
+                                    ),
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    content = {
+                                        RadioButton(
+                                            selected = (text == selectedOption),
+                                            onClick = {
+                                                selectedOption = text
+                                                gender = text
+                                            },
+                                            colors = RadioButtonDefaults.colors(
+                                                selectedColor = Color(0xFF1976D2),
+                                            )
+                                        )
+                                        Text(text)
+                                    }
+                                )
+                            }
+                        }
                         val newUser = User(
                             fullname = username.toString(),
                             email = useremail.toString(),
@@ -687,7 +738,8 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                 .align(Alignment.CenterHorizontally)
                                 .fillMaxWidth()
                                 .padding(16.dp),
-                            shape = RoundedCornerShape(10.dp)
+                            shape = RoundedCornerShape(10.dp),
+                            colors = ButtonDefaults.buttonColors(Color(0xFF1976D2))
                         )
                     },
                 )

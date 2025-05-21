@@ -77,6 +77,11 @@ class ClientProfileRepository(private val supabaseClient: SupabaseClient) {
                     ignoreCase = true
                 ) -> "A server error occurred. Try again later."
 
+                message.contains(
+                    "List is empty",
+                    ignoreCase = true
+                ) -> "You have no medical data to display"
+
                 else -> "An expected error occurred : ${e.message}"
             }
             Result.failure(Exception(userMessage))

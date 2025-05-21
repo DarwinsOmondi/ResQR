@@ -28,4 +28,7 @@ class ClientViewmodel(private val clientRepository: ClientRepository) : ViewMode
             }
         }
     }
+    fun clearMessage() {
+        _uiState.value = _uiState.value.copy(error = null, saveSuccess = null)
+    }
 }

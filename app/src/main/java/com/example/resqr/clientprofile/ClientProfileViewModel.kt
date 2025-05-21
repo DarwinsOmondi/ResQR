@@ -20,7 +20,7 @@ class ClientProfileViewModel(private val repository: ClientProfileRepository) : 
             _uiState.value = if (response.isSuccess) {
                 UiState(fetchSuccess = response.getOrNull())
             } else {
-                UiState(error = "Error fetching medical data.")
+                UiState(error = if (response.exceptionOrNull() != null) response.exceptionOrNull()?.message else "Error fetching medical data.")
             }
         }
     }

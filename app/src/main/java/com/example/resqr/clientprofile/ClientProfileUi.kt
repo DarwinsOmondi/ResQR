@@ -3,6 +3,7 @@ package com.example.resqr.clientprofile
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.*
 import androidx.compose.material3.*
@@ -139,7 +140,7 @@ fun ProfileContent(user: User, onEditClick: () -> Unit, modifier: Modifier = Mod
             .background(
                 Brush.verticalGradient(
                     colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
+                        MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
                         MaterialTheme.colorScheme.background
                     )
                 )
@@ -171,11 +172,11 @@ fun ProfileContent(user: User, onEditClick: () -> Unit, modifier: Modifier = Mod
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Button(onClick = onEditClick) {
+                Button(onClick = onEditClick, shape = RoundedCornerShape(10.dp), content = {
                     Icon(Icons.Default.Edit, contentDescription = "Edit Profile")
                     Spacer(modifier = Modifier.width(4.dp))
                     Text("Edit Profile")
-                }
+                })
             }
         }
         item {
