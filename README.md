@@ -1,94 +1,222 @@
 # 🚨 ResQR
 
-**ResQR** is a life-saving Android application that empowers users to instantly send emergency alerts and securely share their medical data via QR codes — even from the lock screen.
+**ResQR** is a life-saving Android application that enables users to instantly broadcast emergency alerts and share critical medical information through QR codes — even when their device is locked.
+
+---
 
 ## 🔑 Key Features
 
-- **🔐 Role-Based Access Control**
-  - Choose your role at signup: **Victim** (emergency reporter) or **Responder** (emergency personnel).
-  
-- **🆘 Instant Emergency Alerts**
-  - Victims can send **real-time SOS alerts** with GPS coordinates, a short description, and an optional image.
-  
-- **🧬 Secure Medical Profile**
-  - Store crucial medical data: blood type, medication, allergies, conditions — securely and privately.
-  
-- **📲 QR Code Medical Sharing**
-  - Generate a QR code for responders to **instantly scan** and access your medical info — even from the lock screen.
+* ### 🔐 **Role-Based Access**
 
-- **🔔 Real-Time Alert Dashboard**
-  - Responders receive instant updates about nearby SOS alerts, with user location, status, and medical data.
+  Users select a role at sign-up:
 
-- **🎨 Role-Based Theming**
-  - Custom UI themes:
-    - 🔴 **Red** for Victims
-    - 🔵 **Blue** for Responders
+  * **👤 Victim** – someone who may need help during an emergency.
+  * **🧑‍🚒 Responder** – trained personnel or nearby civilians who can respond to alerts.
 
-- **🔒 Lock Screen Overlay**
-  - Show your QR code and critical data **without unlocking** the device — lifesaving during unconscious or restricted situations.
+* ### 🆘 **Instant Emergency Alerts**
 
----
+  Victims can:
 
-## 🚧 Tech Stack
+  * Trigger **real-time SOS alerts**.
+  * Share **GPS coordinates**, a **short message**, and an **optional image**.
 
-| Layer       | Technology                                 |
-|-------------|---------------------------------------------|
-| **Frontend** | Kotlin, Jetpack Compose                    |
-| **Architecture** | MVVM (Model-View-ViewModel)             |
-| **Backend**  | [Supabase](https://supabase.com/)         |
-|             | - Auth (user authentication)               |
-|             | - Postgres (medical/user data)             |
-|             | - Realtime (emergency alert updates)       |
-|             | - Storage (image uploads)                  |
-| **Others**   | QR Code Generator, Location Services      |
+* ### 🧬 **Medical Profile Management**
 
----
+  Securely store medical data such as:
 
-## 📦 Features by Role
+  * Blood type
+  * Allergies
+  * Chronic conditions
+  * Medications
 
-### 👤 Victim
-- Register and build a personal medical profile
-- Send real-time emergency alerts with:
-  - 📍 GPS location
-  - 📝 Short description
-  - 📸 Image of the situation
-- Display medical QR code on the lock screen
+* ### 📲 **QR Code-Based Medical Access**
 
-### 🧑‍🚒 Responder
-- Scan victim's QR code for instant medical access
-- View real-time list of incoming emergency alerts
-- Receive alerts with full context (map, image, details)
+  Victims generate a unique QR code that:
+
+  * Allows responders to access their medical profile.
+  * Works even from the **lock screen**.
+
+* ### 🔔 **Real-Time Alert Dashboard**
+
+  Responders can:
+
+  * View incoming emergency alerts.
+  * Get live updates with location, alert type, and patient info.
+
+* ### 🎨 **Role-Based Theming**
+
+  Distinct visual UI based on role:
+
+  * 🔴 **Red UI** for Victims
+  * 🔵 **Blue UI** for Responders
+
+* ### 🔒 **Lock Screen Overlay**
+
+  Victims can show QR code and selected medical details **without unlocking their device** — critical for unconscious or disabled individuals.
 
 ---
 
-## 🧪 Project Structure
+## 🧱 Tech Stack
+
+| Layer            | Technology                             |
+| ---------------- | -------------------------------------- |
+| **Frontend**     | Kotlin, Jetpack Compose                |
+| **Architecture** | MVVM (Model-View-ViewModel)            |
+| **Backend**      | [Supabase](https://supabase.com/)      |
+|                  | - Supabase Auth (Authentication)       |
+|                  | - Supabase Database (PostgreSQL)       |
+|                  | - Supabase Realtime (Live alerts)      |
+|                  | - Supabase Storage (Media files)       |
+| **Others**       | QR Code Generator, Google Location API |
+
+---
+
+## 🧩 Features by Role
+
+### 👤 **Victim**
+
+* Register and update a personal **medical profile**.
+* Send **emergency alerts** with:
+
+  * 📍 GPS location (real-time)
+  * 📝 Short description
+  * 📸 Optional image
+* Display a **QR Code overlay** from the lock screen.
+
+### 🧑‍🚒 **Responder**
+
+* Receive **live emergency alerts**.
+* View alert details: victim's name, location, status, medical data.
+* **Scan victim's QR code** to instantly retrieve medical data.
+* Access embedded **maps, images**, and quick contact options.
+
+---
+
+## 📁 Project Structure
+
+```bash
 ResQR/
-│
 ├── app/
-│ ├── ui/ # Composables and screens
-│ ├── viewmodel/ # ViewModel classes (MVVM)
-│ ├── model/ # Data classes (User, MedicalData, etc.)
-│ ├── repository/ # Data access and business logic
-│ └── utils/ # QR code, location, permissions
+│   ├── ui/                # UI screens and Jetpack Compose elements
+│   │   ├── victim/        # Victim-specific UI screens
+│   │   ├── responder/     # Responder-specific UI screens
+│   │   └── common/        # Shared composables
 │
-├── supabase/ # Supabase client and config
-└── README.md # 📄 You're here!
+│   ├── viewmodel/         # ViewModel classes per feature/module
+│   │   ├── AuthViewModel.kt
+│   │   ├── VictimViewModel.kt
+│   │   └── ResponderViewModel.kt
+│
+│   ├── model/             # Kotlin data classes
+│   │   ├── User.kt
+│   │   ├── MedicalProfile.kt
+│   │   └── Alert.kt
+│
+│   ├── repository/        # Logic for interacting with Supabase
+│   │   ├── AuthRepository.kt
+│   │   ├── AlertRepository.kt
+│   │   └── MedicalDataRepository.kt
+│
+│   ├── utils/             # Helpers: QR generation, location, etc.
+│   │   ├── QRCodeUtils.kt
+│   │   ├── LocationUtils.kt
+│   │   └── Permissions.kt
+│
+│   └── theme/             # Colors, themes, typography
+│
+├── supabase/              # Supabase keys, tables, API config
+│   ├── SupabaseClient.kt
+│   ├── Tables.sql
+│   └── SupabaseConstants.kt
+│
+├── README.md              # This file
+└── build.gradle.kts       # Kotlin DSL build configuration
+```
+
+---
 
 ## ⚙️ Setup Instructions
 
-1. **Clone the Repository**
+### 📦 Clone the Project
 
-   ```bash
-   git clone https://github.com/yourusername/ResQR.git
-   cd ResQR
-2. **Open in Android Studio**
+```bash
+git clone https://github.com/yourusername/ResQR.git
+cd ResQR
+```
 
-3. **File > Open > Choose the ResQR folder**
+### 🛠 Open in Android Studio
 
-4.**Set up Supabase**
+1. Launch **Android Studio**.
+2. Click **File > Open** and select the `ResQR` folder.
+3. Let Gradle sync and dependencies resolve.
 
-5.**Add your Supabase credentials (URL + Key) in the appropriate config file**
+### 🔐 Supabase Setup
 
-6.**Run the App**
+1. Go to [https://supabase.com/](https://supabase.com/).
+2. Create a new project and get:
 
-Click ▶️ Run or use the emulator/physical device
+   * `SUPABASE_URL`
+   * `SUPABASE_ANON_KEY`
+3. Add credentials in:
+
+   ```kotlin
+   // SupabaseConstants.kt
+   const val SUPABASE_URL = "https://<your-project>.supabase.co"
+   const val SUPABASE_KEY = "your-anon-key"
+   ```
+
+### 🧮 Setup Tables
+
+Run the provided SQL in your Supabase project's SQL editor:
+
+```sql
+-- users table
+create table users (
+  id uuid primary key default uuid_generate_v4(),
+  email text unique not null,
+  role text check (role in ('victim', 'responder')),
+  full_name text,
+  blood_type text,
+  allergies text[],
+  medication text[],
+  conditions text[],
+  created_at timestamptz default now()
+);
+
+-- alerts table
+create table alerts (
+  id uuid primary key default uuid_generate_v4(),
+  user_id uuid references users(id),
+  location geography(Point, 4326),
+  description text,
+  image_url text,
+  timestamp timestamptz default now()
+);
+```
+
+---
+
+## ▶️ Run the App
+
+1. Select a device or emulator.
+2. Hit the ▶️ **Run** button.
+3. Login or sign up with role selection (Victim or Responder).
+
+---
+
+## 💡 Contributions
+
+Pull requests and feature suggestions are welcome!
+Please:
+
+* Follow the MVVM structure.
+* Use Jetpack Compose idioms.
+* Maintain clean commit history and code readability.
+
+---
+
+## 🛡️ License
+
+This project is licensed under the MIT License — see the `LICENSE` file for details.
+
+---
