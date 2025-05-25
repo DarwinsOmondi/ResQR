@@ -126,7 +126,6 @@ ResQR/
 │
 ├── supabase/              # Supabase keys, tables, API config
 │   ├── SupabaseClient.kt
-│   ├── Tables.sql
 │   └── SupabaseConstants.kt
 │
 ├── README.md              # This file
@@ -140,7 +139,7 @@ ResQR/
 ### 📦 Clone the Project
 
 ```bash
-git clone https://github.com/yourusername/ResQR.git
+git clone https://github.com/DarwinsOmondi/ResQR.git
 cd ResQR
 ```
 
@@ -189,7 +188,6 @@ create table alerts (
   user_id uuid references users(id),
   location geography(Point, 4326),
   description text,
-  image_url text,
   timestamp timestamptz default now()
 );
 ```
