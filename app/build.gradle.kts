@@ -111,9 +111,12 @@ dependencies {
     implementation("org.osmdroid:osmdroid-android:6.1.20")
 
     //coil
-    implementation ("io.coil-kt:coil-compose:2.6.0")
+    implementation("io.coil-kt:coil-compose:2.6.0")
 
     //or code
-    implementation ("com.google.zxing:core:3.5.2")
-    implementation ("com.journeyapps:zxing-android-embedded:4.3.0")
+    implementation("com.google.zxing:core:3.5.2")
+    implementation("com.journeyapps:zxing-android-embedded:4.3.0")
+
+    //location
+    implementation("com.google.android.gms:play-services-location:21.3.0")
 }

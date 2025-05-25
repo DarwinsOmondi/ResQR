@@ -1,17 +1,12 @@
 package com.example.resqr.clienthome
 
-import android.graphics.Bitmap
+import android.os.CountDownTimer
 import android.util.Log
+import com.example.resqr.model.Alert
 import com.example.resqr.model.User
-import com.google.zxing.BarcodeFormat
-import com.google.zxing.qrcode.QRCodeWriter
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.Json
-import java.util.UUID
-import androidx.core.graphics.createBitmap
-import androidx.core.graphics.set
 
 class ClientRepository(private val supabaseClient: SupabaseClient) {
 
@@ -56,6 +51,102 @@ class ClientRepository(private val supabaseClient: SupabaseClient) {
                 else -> "An expected error occurred : ${e.message}"
             }
             Result.failure(Exception("Error saving medical data due to $userMessage"))
+        }
+    }
+
+    fun alertCountDown(
+        totalTime: Int = 5,
+        onTick: (Int) -> Unit,
+        onFinish: () -> Unit
+    ) {
+        object : CountDownTimer(totalTime * 1000L, 1000L) {
+            override fun onTick(millisUntilFinished: Long) {
+                onTick((millisUntilFinished / 1000).toInt())
+            }
+
+            override fun onFinish() {
+                onFinish()
+            }
+        }.start()
+    }
+
+
+    suspend fun sendEmergencyAlert(alert: Alert): Result<String> {
+        return try {
+            supabaseClient.postgrest["alerts"].insert(alert)
+            Result.success("Alert sent successfully")
+        } catch (e: Exception) {
+            Log.e("ClientRepository", "Error sending emergency", e)
+            val message = e.message ?: ""
+            val userMessage = when {
+                message.contains(
+                    "Unauthorized",
+                    ignoreCase = true
+                ) -> "You are not logged in. PLease sign in."
+
+                message.contains(
+                    "Forbidden",
+                    ignoreCase = true
+                ) -> "You don't have permission to perform this action."
+
+                message.contains(
+                    "timeout",
+                    ignoreCase = true
+                ) || message.contains(
+                    "unreachable",
+                    ignoreCase = true
+                ) -> "Network issue .Please try again later."
+
+                message.contains(
+                    "Internal Server Error",
+                    ignoreCase = true
+                ) -> "A server error occurred. Try again later."
+
+                else -> "An expected error occurred : ${e.message}"
+            }
+            Result.failure(Exception("Error sending an alert due to $userMessage"))
+        }
+    }
+
+    suspend fun fetchAlertData(userid: String): Result<Alert> {
+        return try {
+            val alert = supabaseClient.postgrest["alerts"].select() {
+                filter {
+                    eq("userid", userid)
+                }
+            }.decodeSingle<Alert>()
+            
+            Result.success(alert)
+        } catch (e: Exception) {
+            val message = e.message ?: ""
+            val userMessage = when {
+                message.contains(
+                    "Unauthorized",
+                    ignoreCase = true
+                ) -> "You are not logged in. PLease sign in."
+
+                message.contains(
+                    "Forbidden",
+                    ignoreCase = true
+                ) -> "You don't have permission to perform this action."
+
+                message.contains(
+                    "timeout",
+                    ignoreCase = true
+                ) || message.contains(
+                    "unreachable",
+                    ignoreCase = true
+                ) -> "Network issue .Please try again later."
+
+                message.contains(
+                    "Internal Server Error",
+                    ignoreCase = true
+                ) -> "A server error occurred. Try again later."
+
+                else -> "An expected error occurred : ${e.message}"
+
+            }
+            Result.failure(Exception(userMessage))
         }
     }
 }

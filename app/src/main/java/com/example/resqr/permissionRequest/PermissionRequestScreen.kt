@@ -55,7 +55,6 @@ fun PermissionRequestScreen(navController: NavHostController) {
 
     // Launch permission request on screen load
     LaunchedEffect(Unit) {
-        // Delay to ensure smooth transition from signup
         delay(500)
         isRequesting = true
         permissionLauncher.launch(permissions)

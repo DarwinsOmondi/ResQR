@@ -6,6 +6,7 @@ data class UiState(
     val isLoading: Boolean = false,
     val saveSuccess: String? = null,
     val fetchSuccess: User? = null,
+    val alertSuccess: Alert? = null,
     val error: String? = null
 )
 

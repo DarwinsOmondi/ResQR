@@ -47,6 +47,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.resqr.utils.supabaseClient
+import io.github.jan.supabase.auth.auth
 
 @Composable
 fun SignInScreen(navHostController: NavHostController) {
@@ -228,8 +229,9 @@ fun SignInScreen(navHostController: NavHostController) {
                                             email,
                                             password
                                         )
-                                        if (uiState.value.success != null) {
+                                        if (uiState.value.success != null){
                                             navHostController.navigate("home")
+
                                         }
                                     },
                                     Modifier

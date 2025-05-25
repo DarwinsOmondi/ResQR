@@ -34,7 +34,9 @@ class MainActivity : ComponentActivity() {
         enableEdgeToEdge()
         setContent {
             ResQRTheme {
-                ResQR()
+                val startDestination =
+                    if (supabaseClient.auth.currentUserOrNull() != null) "home" else "signin"
+                ResQR(startDestination)
             }
         }
     }
@@ -42,9 +44,7 @@ class MainActivity : ComponentActivity() {
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ResQR() {
-    val startDestination =
-        if (supabaseClient.auth.currentSessionOrNull() != null) "home" else "signin"
+fun ResQR(startDestination: String) {
     val navController = rememberNavController()
     NavHost(
         navController = navController,

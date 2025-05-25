@@ -13,25 +13,24 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.selection.selectable
 import androidx.compose.foundation.selection.selectableGroup
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.Bloodtype
+import androidx.compose.material.icons.filled.CheckCircle
+import androidx.compose.material.icons.filled.HourglassTop
 import androidx.compose.material.icons.filled.MedicalInformation
-import androidx.compose.material.icons.filled.Medication
-import androidx.compose.material.icons.filled.MoodBad
 import androidx.compose.material.icons.filled.Person2
-import androidx.compose.material3.Badge
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
-import androidx.compose.material3.CardColors
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -51,6 +50,7 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarColors
 import androidx.compose.material3.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -70,11 +70,13 @@ import androidx.compose.ui.viewinterop.AndroidView
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import com.example.resqr.model.Alert
 import com.example.resqr.model.Allergy
 import com.example.resqr.model.Emergency_contact
 import com.example.resqr.model.Medication
 import com.example.resqr.model.User
 import com.example.resqr.model.UserMedicalData
+import com.example.resqr.utils.LocationService
 import com.example.resqr.utils.supabaseClient
 import io.github.jan.supabase.auth.auth
 import org.osmdroid.config.Configuration
@@ -88,6 +90,11 @@ fun ClientHomeScreen(navHostController: NavHostController) {
     val supabaseClient = supabaseClient
     val clientRepository = ClientRepository(supabaseClient)
     val clientViewModel: ClientViewmodel = viewModel(factory = ClientHomeFactory(clientRepository))
+    val uiState by clientViewModel.uiState.collectAsState()
+    val timeLeft by clientViewModel.timeLeft.collectAsState()
+    val finished by clientViewModel.countdownFinished.collectAsState()
+    val countdownFinished by clientViewModel.countdownFinished.collectAsState()
+    val hasStarted by clientViewModel.hasStarted.collectAsState()
     var isSheetOpen by remember { mutableStateOf(false) }
     val currentUser = supabaseClient.auth.currentUserOrNull()
     var username = currentUser?.userMetadata?.get("fullname")
@@ -124,8 +131,36 @@ fun ClientHomeScreen(navHostController: NavHostController) {
     var medicationduration by remember { mutableStateOf("") }
     var medicationList by remember { mutableStateOf(mutableListOf<Medication>()) }
     var contactList by remember { mutableStateOf(mutableListOf<Emergency_contact>()) }
+    var longitude by remember { mutableStateOf(0.0) }
+    var latitude by remember { mutableStateOf(0.0) }
+    val alertResponse = uiState.alertSuccess
     val context = LocalContext.current
 
+
+//    LaunchedEffect(Unit) {
+//        clientViewModel.fetchAlertData(currentUser?.id.toString())
+//    }
+
+    LaunchedEffect(Unit) {
+        clientViewModel.fetchAlertData(currentUser?.id.toString())
+        val locationService = LocationService(context)
+        val location = locationService.getUserCurrentLocation()
+        if (location != null) {
+            latitude = location.latitude
+            longitude = location.longitude
+        }
+    }
+    val alert = Alert(
+        latitude = latitude,
+        longitude = longitude,
+        resolved = false
+    )
+
+    LaunchedEffect(countdownFinished) {
+        if (countdownFinished) {
+            clientViewModel.sendEmergencyAlert(alert)
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -186,20 +221,27 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                         .padding(innerPadding)
                         .background(Color.Red),
                     content = {
+
                         BannerMessage()
                         Box(
                             Modifier
                                 .fillMaxSize()
                                 .clickable(
                                     enabled = true,
-                                    onClick = {}
+                                    onClick = {
+                                        clientViewModel.startCountdown()
+                                    }
                                 )
                                 .weight(.5f)
                                 .background(Color.Red)
                                 .align(Alignment.CenterHorizontally),
                             content = {
                                 Text(
-                                    "SEND EMERGENCY ALERT",
+                                    text = when {
+                                        !hasStarted -> "SEND EMERGENCY ALERT"
+                                        !finished -> "SENDING IN: $timeLeft"
+                                        else -> "EMERGENCY ALERT SENT"
+                                    },
                                     style = TextStyle(
                                         color = Color.White,
                                         fontWeight = FontWeight.Bold,
@@ -222,7 +264,8 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                 Column(
                                     Modifier
                                         .fillMaxSize()
-                                        .align(Alignment.Center), content = {
+                                        .align(Alignment.Center),
+                                    content = {
                                         Card(
                                             modifier = Modifier
                                                 .fillMaxWidth()
@@ -250,6 +293,70 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                                 bottomEnd = 25.dp
                                             )
                                         )
+
+                                        if (uiState.isLoading) {
+                                            CircularProgressIndicator(
+                                                modifier = Modifier.align(
+                                                    Alignment.CenterHorizontally
+                                                )
+                                            )
+                                        } else if (alertResponse != null) {
+                                            val cardColor =
+                                                if (alert.resolved) Color(0xFF4CAF50) else Color(
+                                                    0xFFFFC107
+                                                )
+                                            val message =
+                                                if (alert.resolved) "Help is on the way" else "Awaiting response"
+                                            val icon =
+                                                if (alert.resolved) Icons.Default.CheckCircle else Icons.Default.HourglassTop
+
+                                            Card(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                                                    .height(60.dp),
+                                                shape = RoundedCornerShape(12.dp),
+                                                elevation = CardDefaults.cardElevation(6.dp),
+                                                colors = CardDefaults.cardColors(containerColor = cardColor)
+                                            ) {
+                                                Row(
+                                                    modifier = Modifier
+                                                        .fillMaxSize()
+                                                        .padding(horizontal = 16.dp),
+                                                    verticalAlignment = Alignment.CenterVertically
+                                                ) {
+                                                    Icon(
+                                                        imageVector = icon,
+                                                        contentDescription = null,
+                                                        tint = Color.White,
+                                                        modifier = Modifier.size(24.dp)
+                                                    )
+                                                    Spacer(modifier = Modifier.width(12.dp))
+                                                    Text(
+                                                        text = message,
+                                                        style = MaterialTheme.typography.bodyLarge.copy(
+                                                            color = Color.Black,
+                                                            fontWeight = FontWeight.SemiBold
+                                                        )
+                                                    )
+                                                }
+                                            }
+                                        } else if (uiState.error != null) {
+                                            Card(
+                                                modifier = Modifier
+                                                    .fillMaxWidth()
+                                                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                                                shape = RoundedCornerShape(12.dp),
+                                                colors = CardDefaults.cardColors(containerColor = Color.Red)
+                                            ) {
+                                                Text(
+                                                    text = "Error: ${uiState.error}",
+                                                    modifier = Modifier.padding(16.dp),
+                                                    color = Color.White,
+                                                    style = MaterialTheme.typography.bodyLarge
+                                                )
+                                            }
+                                        }
                                         OutlinedButton(
                                             onClick = {
                                                 navHostController.navigate("qrcode")
@@ -316,7 +423,7 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                         Icon(
                                             Icons.Default.ArrowDropDown,
                                             contentDescription = "Dropdown",
-                                            tint = Color.Red
+                                            tint = Color.Blue
                                         )
                                     }
                                 )
