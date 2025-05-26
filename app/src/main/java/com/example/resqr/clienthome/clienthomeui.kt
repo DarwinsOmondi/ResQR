@@ -81,6 +81,7 @@ import com.example.resqr.utils.supabaseClient
 import io.github.jan.supabase.auth.auth
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
+import org.osmdroid.util.GeoPoint
 import org.osmdroid.views.MapView
 import org.osmdroid.views.overlay.mylocation.MyLocationNewOverlay
 
@@ -135,11 +136,7 @@ fun ClientHomeScreen(navHostController: NavHostController) {
     var latitude by remember { mutableStateOf(0.0) }
     val alertResponse = uiState.alertSuccess
     val context = LocalContext.current
-
-
-//    LaunchedEffect(Unit) {
-//        clientViewModel.fetchAlertData(currentUser?.id.toString())
-//    }
+    var mapLocation by remember { mutableStateOf<GeoPoint?>(null) }
 
     LaunchedEffect(Unit) {
         clientViewModel.fetchAlertData(currentUser?.id.toString())
@@ -148,6 +145,7 @@ fun ClientHomeScreen(navHostController: NavHostController) {
         if (location != null) {
             latitude = location.latitude
             longitude = location.longitude
+            mapLocation = GeoPoint(latitude, longitude)
         }
     }
     val alert = Alert(
@@ -156,8 +154,8 @@ fun ClientHomeScreen(navHostController: NavHostController) {
         resolved = false
     )
 
-    LaunchedEffect(countdownFinished) {
-        if (countdownFinished) {
+    LaunchedEffect(countdownFinished, hasStarted) {
+        if (countdownFinished && hasStarted) {
             clientViewModel.sendEmergencyAlert(alert)
         }
     }
@@ -229,26 +227,44 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                 .clickable(
                                     enabled = true,
                                     onClick = {
-                                        clientViewModel.startCountdown()
+                                        if (!hasStarted) {
+                                            clientViewModel.startCountdown()
+                                        }
                                     }
                                 )
                                 .weight(.5f)
                                 .background(Color.Red)
                                 .align(Alignment.CenterHorizontally),
                             content = {
-                                Text(
-                                    text = when {
-                                        !hasStarted -> "SEND EMERGENCY ALERT"
-                                        !finished -> "SENDING IN: $timeLeft"
-                                        else -> "EMERGENCY ALERT SENT"
-                                    },
-                                    style = TextStyle(
-                                        color = Color.White,
-                                        fontWeight = FontWeight.Bold,
-                                        fontSize = 32.sp,
-                                        fontFamily = MaterialTheme.typography.titleLarge.fontFamily
+                                Column(
+                                    horizontalAlignment = Alignment.CenterHorizontally,
+                                    verticalArrangement = Arrangement.Center,
+                                    modifier = Modifier.fillMaxSize()
+                                ) {
+                                    Text(
+                                        text = when {
+                                            !hasStarted -> "SEND EMERGENCY ALERT"
+                                            !finished -> "SENDING IN: $timeLeft"
+                                            else -> "EMERGENCY ALERT SENT"
+                                        },
+                                        style = TextStyle(
+                                            color = Color.White,
+                                            fontWeight = FontWeight.Bold,
+                                            fontSize = 32.sp,
+                                            fontFamily = MaterialTheme.typography.titleLarge.fontFamily
+                                        )
                                     )
-                                )
+                                    Spacer(Modifier.height(16.dp))
+                                    if (hasStarted && !finished) {
+                                        Button(
+                                            onClick = {
+                                                clientViewModel.stopCountdown()
+                                            },
+                                            content = { Text("Cancel Alert") },
+                                            shape = RoundedCornerShape(10.dp)
+                                        )
+                                    }
+                                }
                             },
                             contentAlignment = Alignment.Center
                         )
@@ -277,12 +293,24 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                                             context.packageName
                                                         MapView(context).apply {
                                                             setTileSource(TileSourceFactory.MAPNIK)
-                                                            controller.setZoom(22.0)
+                                                            controller.setZoom(18.0)
                                                             setMultiTouchControls(true)
                                                             val locationOverlay =
-                                                                MyLocationNewOverlay(this).apply { enableMyLocation() }
+                                                                MyLocationNewOverlay(this).apply {
+                                                                    enableMyLocation()
+                                                                    enableFollowLocation()
+                                                                }
                                                             overlays.add(locationOverlay)
+                                                            mapLocation?.let { userLocation ->
+                                                                controller.setCenter(userLocation)
+                                                            }
                                                         }
+                                                    },
+                                                    update = { mapView ->
+                                                        mapLocation?.let {
+                                                            mapView.controller.setCenter(it)
+                                                        }
+                                                        mapView.invalidate()
                                                     }
                                                 )
                                             },
@@ -302,13 +330,13 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                             )
                                         } else if (alertResponse != null) {
                                             val cardColor =
-                                                if (alert.resolved) Color(0xFF4CAF50) else Color(
+                                                if (alertResponse.resolved) Color(0xFF4CAF50) else Color(
                                                     0xFFFFC107
                                                 )
                                             val message =
-                                                if (alert.resolved) "Help is on the way" else "Awaiting response"
+                                                if (alertResponse.resolved) "Help is on the way" else "Awaiting response"
                                             val icon =
-                                                if (alert.resolved) Icons.Default.CheckCircle else Icons.Default.HourglassTop
+                                                if (alertResponse.resolved) Icons.Default.CheckCircle else Icons.Default.HourglassTop
 
                                             Card(
                                                 modifier = Modifier
@@ -838,7 +866,15 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                         )
                         Button(
                             onClick = {
-                                clientViewModel.saveClientMedicalData(newUser)
+                                if (blood_type.isNotEmpty() && gender.isNotEmpty() && conditions.isNotEmpty() && allergyList.isNotEmpty() && medicationList.isNotEmpty() && contactList.isNotEmpty()) {
+                                    clientViewModel.saveClientMedicalData(newUser)
+                                } else {
+                                    Toast.makeText(
+                                        context,
+                                        "Please fill in all fields",
+                                        Toast.LENGTH_SHORT
+                                    ).show()
+                                }
                             },
                             content = { Text("Create your Medical Report") },
                             modifier = Modifier

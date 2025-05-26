@@ -1,11 +1,10 @@
 package com.example.resqr.QRCode
 
-import android.app.NotificationManager
+import android.app.ActivityManager
 import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.graphics.Bitmap
-import android.net.Uri
 import android.os.Build
 import android.os.Environment
 import androidx.annotation.RequiresApi
@@ -45,10 +44,21 @@ import com.example.resqr.utils.QrForegroundService
 import com.example.resqr.utils.supabaseClient
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.Json
 import java.io.File
 import java.io.FileOutputStream
+
+
+fun isServiceRunning(context: Context, serviceClass: Class<*>): Boolean {
+    val manager = context.getSystemService(Context.ACTIVITY_SERVICE) as ActivityManager
+    for (service in manager.getRunningServices(Integer.MAX_VALUE)) {
+        if (serviceClass.name == service.service.className) {
+            return true
+        }
+    }
+    return false
+}
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
@@ -59,16 +69,17 @@ fun QRCodeScreen(navController: NavHostController) {
     val profileViewModel: ClientProfileViewModel = viewModel(factory = ClientProfileFactory(repo))
     val userId = supabaseClient.auth.currentUserOrNull()?.id
 
-    LaunchedEffect(Unit) {
-        userId?.let { profileViewModel.fetchClientMedicalData(it) }
-    }
-
     val uiState by profileViewModel.uiState.collectAsState()
     val qrCodeRepository = QRCodeRepository()
     val qrCodeViewModel = QRCodeViewModel(qrCodeRepository)
     val context = LocalContext.current
     var isServiceRunning by remember { mutableStateOf(false) }
     var showWarning by remember { mutableStateOf(false) }
+
+    LaunchedEffect(Unit) {
+        isServiceRunning = isServiceRunning(context, QrForegroundService::class.java)
+        userId?.let { profileViewModel.fetchClientMedicalData(it) }
+    }
 
     DisposableEffect(Unit) {
         onDispose {
@@ -114,7 +125,7 @@ fun QRCodeScreen(navController: NavHostController) {
                 val jsonData = Json.encodeToString(uiState.fetchSuccess)
                 // Generate QR code on background thread
                 val qrBitmap = remember {
-                    kotlinx.coroutines.runBlocking(Dispatchers.Default) {
+                    runBlocking(Dispatchers.Default) {
                         qrCodeViewModel.generateQRCode(jsonData)
                     }
                 }

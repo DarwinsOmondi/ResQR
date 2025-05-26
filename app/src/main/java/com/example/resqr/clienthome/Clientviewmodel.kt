@@ -45,6 +45,7 @@ class ClientViewmodel(private val clientRepository: ClientRepository) : ViewMode
 
     fun startCountdown() {
         _hasStarted.value = true
+        _countdownFinished.value = false
         clientRepository.alertCountDown(
             onTick = { seconds ->
                 _timeLeft.value = seconds
@@ -57,6 +58,11 @@ class ClientViewmodel(private val clientRepository: ClientRepository) : ViewMode
                 }
             }
         )
+    }
+
+    fun stopCountdown() {
+        clientRepository.stopCountdown()
+        resetCountdown()
     }
 
     fun resetCountdown() {

@@ -9,6 +9,7 @@ import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.serialization.json.Json
 
 class ClientRepository(private val supabaseClient: SupabaseClient) {
+    private var countdownTimer: CountDownTimer? = null
 
     suspend fun saveMedicalData(user: User): Result<String> {
         return try {
@@ -59,7 +60,8 @@ class ClientRepository(private val supabaseClient: SupabaseClient) {
         onTick: (Int) -> Unit,
         onFinish: () -> Unit
     ) {
-        object : CountDownTimer(totalTime * 1000L, 1000L) {
+        countdownTimer?.cancel()
+        countdownTimer = object : CountDownTimer(totalTime * 1000L, 1000L) {
             override fun onTick(millisUntilFinished: Long) {
                 onTick((millisUntilFinished / 1000).toInt())
             }
@@ -68,6 +70,11 @@ class ClientRepository(private val supabaseClient: SupabaseClient) {
                 onFinish()
             }
         }.start()
+    }
+
+    fun stopCountdown() {
+        countdownTimer?.cancel()
+        countdownTimer = null
     }
 
 
@@ -115,7 +122,12 @@ class ClientRepository(private val supabaseClient: SupabaseClient) {
                     eq("userid", userid)
                 }
             }.decodeSingle<Alert>()
-            
+            Log.e("FetchAlertData", "${alert.resolved}")
+            if (alert.resolved) {
+                Log.e("FetchAlertData", "resolved")
+            } else {
+                Log.e("FetchAlertData", "not resolved")
+            }
             Result.success(alert)
         } catch (e: Exception) {
             val message = e.message ?: ""

@@ -28,7 +28,7 @@ val CustomDarkColorScheme = darkColorScheme(
 
 // Light Color Scheme for PlotPot
 val CustomLightColorScheme = lightColorScheme(
-    primary = VictimPrimary,          // Can switch to ResponderPrimary as needed
+    primary = VictimPrimary,
     secondary = VictimSecondary,
     tertiary = VictimWarning,
     background = SoftWhite,

@@ -5,8 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.*
+import androidx.compose.material.icons.filled.ExitToApp
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material3.*
+import androidx.compose.material3.BasicAlertDialog
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -31,6 +36,7 @@ fun ProfileScreen(navController: NavHostController) {
     val repo = ClientProfileRepository(supabaseClient)
     val viewModel: ClientProfileViewModel = viewModel(factory = ClientProfileFactory(repo))
     val userId = supabaseClient.auth.currentUserOrNull()?.id
+    var showLogOutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         userId?.let { viewModel.fetchClientMedicalData(it) }
@@ -49,10 +55,48 @@ fun ProfileScreen(navController: NavHostController) {
                 },
                 actions = {
                     IconButton(onClick = {
-                        viewModel.signOut()
-                        navController.navigate("signin") { popUpTo(0) }
+                        showLogOutDialog = true
                     }) {
-                        Icon(Icons.Default.ExitToApp, contentDescription = "Logout")
+                        Icon(
+                            Icons.AutoMirrored.Filled.ExitToApp,
+                            contentDescription = "Logout",
+                            tint = MaterialTheme.colorScheme.primary
+                        )
+                    }
+
+                    if (showLogOutDialog) {
+                        AlertDialog(
+                            title = { Text("Are you sure you want to logout?") },
+                            onDismissRequest = { showLogOutDialog = false },
+                            confirmButton = {
+                                Button(
+                                    onClick = {
+                                        viewModel.signOut()
+                                        navController.navigate("signin") { popUpTo(0) }
+                                    },
+                                    content = {
+                                        Text("Log Out")
+                                    }
+                                )
+                            },
+                            dismissButton = {
+                                Button(
+                                    onClick = {
+                                        showLogOutDialog = false
+                                    },
+                                    content = {
+                                        Text("Cancel")
+                                    }
+                                )
+                            },
+                            shape = RoundedCornerShape(10.dp),
+                            icon = {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.Logout,
+                                    contentDescription = "Logout"
+                                )
+                            }
+                        )
                     }
                 }
             )
@@ -136,15 +180,7 @@ fun ProfileContent(user: User, onEditClick: () -> Unit, modifier: Modifier = Mod
 
     LazyColumn(
         modifier = modifier
-            .fillMaxSize()
-            .background(
-                Brush.verticalGradient(
-                    colors = listOf(
-                        MaterialTheme.colorScheme.primary.copy(alpha = 0.3f),
-                        MaterialTheme.colorScheme.background
-                    )
-                )
-            ),
+            .fillMaxSize(),
         contentPadding = PaddingValues(horizontal = cardPadding, vertical = 16.dp)
     ) {
         item {
