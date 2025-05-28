@@ -3,7 +3,12 @@
     xmlns:tools="http://schemas.android.com/tools">
 
     <!-- Permissions -->
+    <uses-feature
+        android:name="android.hardware.camera"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.CAMERA" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
@@ -39,6 +44,12 @@
             </intent-filter>
         </activity>
 
+        <activity
+            android:name=".PortraitCaptureActivity"
+            android:screenOrientation="fullSensor"
+            android:theme="@style/Theme.ResQR" />
+
+
         <!-- FileProvider for sharing QR code images -->
         <provider
             android:name="androidx.core.content.FileProvider"
@@ -53,9 +64,9 @@
         <!-- Foreground Service for QR code notification -->
         <service
             android:name=".utils.QrForegroundService"
+            android:enabled="true"
             android:exported="false"
-            android:foregroundServiceType="specialUse"
-            android:enabled="true"/>
+            android:foregroundServiceType="specialUse" />
 
     </application>
 

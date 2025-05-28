@@ -28,7 +28,8 @@ fun PermissionRequestScreen(navController: NavHostController) {
     // List of permissions to request
     val permissions = mutableListOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
-        Manifest.permission.POST_NOTIFICATIONS
+        Manifest.permission.POST_NOTIFICATIONS,
+        Manifest.permission.CAMERA // ✅ Added CAMERA permission
     ).apply {
         if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
             add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -41,8 +42,9 @@ fun PermissionRequestScreen(navController: NavHostController) {
     ) { result ->
         permissionStatus = result
         isRequesting = false
-        // Check if any critical permissions are denied
+
         val allGranted = result.all { it.value }
+
         if (allGranted) {
             navController.navigate("home") {
                 popUpTo(navController.graph.startDestinationId)
@@ -81,7 +83,7 @@ fun PermissionRequestScreen(navController: NavHostController) {
                 title = { Text("Permissions Required") },
                 text = {
                     Text(
-                        "This app needs location, notifications, and storage permissions to function properly. Please grant them in Settings.",
+                        "This app needs location, notifications, camera, and storage permissions to function properly. Please grant them in Settings.",
                         textAlign = TextAlign.Center
                     )
                 },
@@ -98,7 +100,7 @@ fun PermissionRequestScreen(navController: NavHostController) {
                 dismissButton = {
                     Button(onClick = {
                         showSettingsDialog = false
-                        // Navigate to home even if permissions are denied
+                        // Allow navigation even if permissions are denied
                         navController.navigate("home") {
                             popUpTo(navController.graph.startDestinationId)
                             launchSingleTop = true

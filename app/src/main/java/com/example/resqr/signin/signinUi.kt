@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +68,11 @@ fun SignInScreen(navHostController: NavHostController) {
         Color.Red
     } else {
         Color.Gray
+    }
+    LaunchedEffect(Unit) {
+        if (supabaseClient.auth.currentUserOrNull() != null) {
+            navHostController.navigate("home")
+        }
     }
     Column(
         modifier = Modifier
@@ -229,7 +235,7 @@ fun SignInScreen(navHostController: NavHostController) {
                                             email,
                                             password
                                         )
-                                        if (uiState.value.success != null){
+                                        if (uiState.value.success != null) {
                                             navHostController.navigate("home")
 
                                         }

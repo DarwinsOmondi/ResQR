@@ -237,7 +237,7 @@ fun UserInfoCard(user: User) {
         modifier = Modifier
             .fillMaxWidth()
             .semantics { contentDescription = "User Information Card" },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(6.dp)
     ) {
@@ -290,7 +290,7 @@ fun MedicalInfoCard(user: User) {
         modifier = Modifier
             .fillMaxWidth()
             .semantics { contentDescription = "Medical Information Card" },
-        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.background),
         shape = MaterialTheme.shapes.medium,
         elevation = CardDefaults.cardElevation(6.dp)
     ) {

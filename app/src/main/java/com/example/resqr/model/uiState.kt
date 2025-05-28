@@ -10,6 +10,13 @@ data class UiState(
     val error: String? = null
 )
 
+data class ResponderUiState(
+    val isLoading: Boolean = false,
+    val respondSuccess: String? = null,
+    val fetchSuccess: List<Alert> = emptyList(),
+    val error: String? = null
+)
+
 data class AuthUiState(
     val isLoading: Boolean = false,
     val success: UserInfo? = null,

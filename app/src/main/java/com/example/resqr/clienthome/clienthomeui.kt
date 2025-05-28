@@ -79,6 +79,9 @@ import com.example.resqr.model.UserMedicalData
 import com.example.resqr.utils.LocationService
 import com.example.resqr.utils.supabaseClient
 import io.github.jan.supabase.auth.auth
+import kotlinx.datetime.Clock
+import kotlinx.datetime.Clock.System
+import kotlinx.datetime.Instant
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -149,9 +152,10 @@ fun ClientHomeScreen(navHostController: NavHostController) {
         }
     }
     val alert = Alert(
+        alertSentAt = System.now().toString(),
         latitude = latitude,
         longitude = longitude,
-        resolved = false
+        resolved = "false"
     )
 
     LaunchedEffect(countdownFinished, hasStarted) {
@@ -159,7 +163,6 @@ fun ClientHomeScreen(navHostController: NavHostController) {
             clientViewModel.sendEmergencyAlert(alert)
         }
     }
-
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
@@ -186,7 +189,7 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                             .clickable(
                                 true,
                                 onClick = {
-                                    navHostController.navigate("profile")
+                                    navHostController.navigate("responder_home")
                                 }
                             )
                     )
@@ -219,7 +222,6 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                         .padding(innerPadding)
                         .background(Color.Red),
                     content = {
-
                         BannerMessage()
                         Box(
                             Modifier
@@ -330,13 +332,15 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                             )
                                         } else if (alertResponse != null) {
                                             val cardColor =
-                                                if (alertResponse.resolved) Color(0xFF4CAF50) else Color(
+                                                if (alertResponse.resolved == "true") Color(
+                                                    0xFF4CAF50
+                                                ) else Color(
                                                     0xFFFFC107
                                                 )
                                             val message =
-                                                if (alertResponse.resolved) "Help is on the way" else "Awaiting response"
+                                                if (alertResponse.resolved == "true") "Help is on the way" else "Awaiting response"
                                             val icon =
-                                                if (alertResponse.resolved) Icons.Default.CheckCircle else Icons.Default.HourglassTop
+                                                if (alertResponse.resolved == "true") Icons.Default.CheckCircle else Icons.Default.HourglassTop
 
                                             Card(
                                                 modifier = Modifier

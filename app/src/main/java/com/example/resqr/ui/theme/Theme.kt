@@ -40,6 +40,29 @@ val CustomLightColorScheme = lightColorScheme(
     onSurface = TextDark,
 )
 
+val CustomResponderTheme = darkColorScheme(
+    primary = ResponderPrimary,
+    secondary = ResponderSecondary,
+    tertiary = ResponderSuccess,
+    background = DarkGray,
+    surface = DarkGray,
+    onPrimary = Color.White,
+    onSecondary = Color.Black,
+    onTertiary = Color.Black,
+    onSurface = AlertActive
+)
+
+@Composable
+fun ResponderTheme(
+    content: @Composable () -> Unit
+) {
+    MaterialTheme(
+        colorScheme = CustomResponderTheme,
+        typography = Typography,
+        content = content
+    )
+}
+
 
 @Composable
 fun ResQRTheme(

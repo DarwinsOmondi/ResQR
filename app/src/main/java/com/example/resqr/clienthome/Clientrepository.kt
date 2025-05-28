@@ -80,6 +80,14 @@ class ClientRepository(private val supabaseClient: SupabaseClient) {
 
     suspend fun sendEmergencyAlert(alert: Alert): Result<String> {
         return try {
+            // Configure Json to include default values
+            val json = Json { encodeDefaults = true }
+
+            // Log the serialized JSON for debugging
+            val jsonString = json.encodeToString(Alert.serializer(), alert)
+            Log.d("ClientRepository", "Serialized Alert JSON: $jsonString")
+
+            // Insert into Supabase
             supabaseClient.postgrest["alerts"].insert(alert)
             Result.success("Alert sent successfully")
         } catch (e: Exception) {
@@ -122,14 +130,12 @@ class ClientRepository(private val supabaseClient: SupabaseClient) {
                     eq("userid", userid)
                 }
             }.decodeSingle<Alert>()
-            Log.e("FetchAlertData", "${alert.resolved}")
-            if (alert.resolved) {
-                Log.e("FetchAlertData", "resolved")
-            } else {
-                Log.e("FetchAlertData", "not resolved")
-            }
+            Log.e("FetchAlertData", alert.resolved.toString())
+            Log.e("FetchAlertDataDetails", alert.toString())
+
             Result.success(alert)
         } catch (e: Exception) {
+            Log.e("FetchAlertDataDetails", e.message.toString())
             val message = e.message ?: ""
             val userMessage = when {
                 message.contains(
