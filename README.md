@@ -1,7 +1,6 @@
 # 🚨 ResQR
 
 **ResQR** is a life-saving Android application that enables users to instantly broadcast emergency alerts and share critical medical information through QR codes — even when their device is locked.
-
 ---
 
 ## 🔑 Key Features
@@ -191,7 +190,6 @@ create table alerts (
   timestamp timestamptz default now()
 );
 ```
-
 ---
 
 ## ▶️ Run the App
