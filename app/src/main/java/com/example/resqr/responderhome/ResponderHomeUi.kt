@@ -14,6 +14,9 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ExitToApp
+import androidx.compose.material.icons.automirrored.filled.Logout
+import androidx.compose.material.icons.filled.Logout
 import androidx.compose.material.icons.filled.Person2
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Refresh
@@ -52,6 +55,7 @@ fun ResponderHomeUi(navHostController: NavHostController, onScanQrCode: () -> Un
     )
     val uiState by responderViewModel.uiState.collectAsState()
     val coroutineScope = rememberCoroutineScope()
+    var showLogOutDialog by remember { mutableStateOf(false) }
 
     LaunchedEffect(Unit) {
         responderViewModel.fetchAlertData()
@@ -67,7 +71,53 @@ fun ResponderHomeUi(navHostController: NavHostController, onScanQrCode: () -> Un
                         actionIconContentColor = Color.White,
                         navigationIconContentColor = Color.White,
                         scrolledContainerColor = MaterialTheme.colorScheme.primary
-                    )
+                    ),
+                    actions = {
+                        IconButton(onClick = {
+                            showLogOutDialog = true
+                        }) {
+                            Icon(
+                                Icons.AutoMirrored.Filled.ExitToApp,
+                                contentDescription = "Logout",
+                                tint = MaterialTheme.colorScheme.onSurface
+                            )
+                        }
+
+                        if (showLogOutDialog) {
+                            AlertDialog(
+                                title = { Text("Are you sure you want to logout?") },
+                                onDismissRequest = { showLogOutDialog = false },
+                                confirmButton = {
+                                    Button(
+                                        onClick = {
+                                            responderViewModel.signOutResponder()
+                                            navHostController.navigate("signin") { popUpTo(0) }
+                                        },
+                                        content = {
+                                            Text("Log Out")
+                                        }
+                                    )
+                                },
+                                dismissButton = {
+                                    Button(
+                                        onClick = {
+                                            showLogOutDialog = false
+                                        },
+                                        content = {
+                                            Text("Cancel")
+                                        }
+                                    )
+                                },
+                                shape = RoundedCornerShape(10.dp),
+                                icon = {
+                                    Icon(
+                                        Icons.AutoMirrored.Filled.Logout,
+                                        contentDescription = "Logout"
+                                    )
+                                }
+                            )
+                        }
+                    }
                 )
             },
             modifier = Modifier.fillMaxSize(),
@@ -264,6 +314,15 @@ fun AlertCard(
         ) {
             Text(
                 text = address,
+                style = MaterialTheme.typography.titleMedium.copy(
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.onSurface
+                ),
+                maxLines = 2,
+                overflow = TextOverflow.Ellipsis
+            )
+            Text(
+                text = "0${alert.phoneNumber}",
                 style = MaterialTheme.typography.titleMedium.copy(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.onSurface

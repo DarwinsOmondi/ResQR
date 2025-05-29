@@ -12,4 +12,5 @@ data class Alert(
     val longitude: Double,
     @SerialName("resolved")
     var resolved: String,
+    var phoneNumber: String,
 )

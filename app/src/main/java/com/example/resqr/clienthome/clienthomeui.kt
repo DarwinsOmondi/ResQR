@@ -155,7 +155,8 @@ fun ClientHomeScreen(navHostController: NavHostController) {
         alertSentAt = System.now().toString(),
         latitude = latitude,
         longitude = longitude,
-        resolved = "false"
+        resolved = "false",
+        phoneNumber = userphone.toString(),
     )
 
     LaunchedEffect(countdownFinished, hasStarted) {
@@ -189,7 +190,7 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                             .clickable(
                                 true,
                                 onClick = {
-                                    navHostController.navigate("responder_home")
+                                    navHostController.navigate("profile")
                                 }
                             )
                     )

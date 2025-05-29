@@ -16,6 +16,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import com.example.resqr.utils.supabaseClient
+import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.delay
 
 @Composable
@@ -24,6 +26,8 @@ fun PermissionRequestScreen(navController: NavHostController) {
     var permissionStatus by remember { mutableStateOf<Map<String, Boolean>>(emptyMap()) }
     var showSettingsDialog by remember { mutableStateOf(false) }
     var isRequesting by remember { mutableStateOf(false) }
+    val userRole =
+        supabaseClient.auth.currentSessionOrNull()?.user?.appMetadata?.get("role").toString()
 
     // List of permissions to request
     val permissions = mutableListOf(
@@ -46,10 +50,18 @@ fun PermissionRequestScreen(navController: NavHostController) {
         val allGranted = result.all { it.value }
 
         if (allGranted) {
-            navController.navigate("home") {
-                popUpTo(navController.graph.startDestinationId)
-                launchSingleTop = true
+            if (userRole == "Victim") {
+                navController.navigate("home") {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
+            } else {
+                navController.navigate("responder_home") {
+                    popUpTo(navController.graph.startDestinationId)
+                    launchSingleTop = true
+                }
             }
+
         } else {
             showSettingsDialog = true
         }
@@ -101,9 +113,16 @@ fun PermissionRequestScreen(navController: NavHostController) {
                     Button(onClick = {
                         showSettingsDialog = false
                         // Allow navigation even if permissions are denied
-                        navController.navigate("home") {
-                            popUpTo(navController.graph.startDestinationId)
-                            launchSingleTop = true
+                        if (userRole == "Victim") {
+                            navController.navigate("home") {
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
+                        } else {
+                            navController.navigate("responder_home") {
+                                popUpTo(navController.graph.startDestinationId)
+                                launchSingleTop = true
+                            }
                         }
                     }) {
                         Text("Skip")

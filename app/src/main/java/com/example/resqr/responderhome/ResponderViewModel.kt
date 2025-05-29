@@ -7,6 +7,7 @@ import androidx.annotation.RequiresApi
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.resqr.model.ResponderUiState
+import com.example.resqr.model.UiState
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -109,5 +110,25 @@ class ResponderViewModel(private val repository: ResponderRepository) : ViewMode
         val currentTime = LocalDateTime.now()
         val formatter = DateTimeFormatter.ofPattern("h:mm a", Locale.getDefault())
         return currentTime.format(formatter)
+    }
+
+
+    //signOutResponder
+    fun signOutResponder() {
+        viewModelScope.launch {
+            _uiState.value = ResponderUiState(isLoading = true)
+            val response = repository.signOutResponder()
+            _uiState.value = if (response.isSuccess) {
+                ResponderUiState(
+                    isLoading = false,
+                    respondSuccess = "Signed out successfully"
+                )
+            } else {
+                ResponderUiState(
+                    isLoading = false,
+                    error = response.exceptionOrNull()?.message ?: "Error signing out"
+                )
+            }
+        }
     }
 }

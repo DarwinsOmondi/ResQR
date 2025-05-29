@@ -34,4 +34,39 @@ class SignUpViewmodel(private val signupRepository: SignupRepository) : ViewMode
             }
         }
     }
+
+    fun signUpInstitution(
+        email: String,
+        institutionName: String,
+        institutionPhoneNumber: String,
+        password: String,
+        role: String,
+        region: String
+    ) {
+        if (
+            email.isBlank() &&
+            institutionName.isBlank() &&
+            institutionPhoneNumber.isBlank() &&
+            password.isBlank() &&
+            region.isBlank()
+        ) {
+            _uiState.value = AuthUiState(error = "None of the fields provided can be empty")
+        } else {
+            viewModelScope.launch {
+                val results = signupRepository.signUpInstitution(
+                    email,
+                    institutionName,
+                    institutionPhoneNumber,
+                    password,
+                    role,
+                    region
+                )
+                _uiState.value = if (results.isSuccess) {
+                    AuthUiState(success = results.getOrNull())
+                } else {
+                    AuthUiState(error = results.exceptionOrNull()?.message ?: "Unknown Error")
+                }
+            }
+        }
+    }
 }

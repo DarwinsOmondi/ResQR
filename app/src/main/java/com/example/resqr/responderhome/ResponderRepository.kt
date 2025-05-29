@@ -3,6 +3,7 @@ package com.example.resqr.responderhome
 import android.util.Log
 import com.example.resqr.model.Alert
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.postgrest
 
 class ResponderRepository(private val supabaseClient: SupabaseClient) {
@@ -85,6 +86,42 @@ class ResponderRepository(private val supabaseClient: SupabaseClient) {
                 else -> "An unexpected error occurred: ${e.message}"
             }
             Result.failure(Exception("Error resolving alert due to $userMessage"))
+        }
+    }
+
+    suspend fun signOutResponder(): Result<String> {
+        return try {
+            supabaseClient.auth.signOut()
+            Result.success("Signed out successfully")
+        } catch (e: Exception) {
+            Log.e("ClientProfileRepository", "Error signing out", e)
+            val message = e.message ?: ""
+            val userMessage = when {
+                message.contains(
+                    "Unauthorized",
+                    ignoreCase = true
+                ) -> "You are not logged in. PLease sign in."
+
+                message.contains(
+                    "Forbidden",
+                    ignoreCase = true
+                ) -> "You don't have permission to perform this action."
+
+                message.contains(
+                    "timeout",
+                    ignoreCase = true
+                ) || message.contains(
+                    "unreachable",
+                ) -> "Network issue .Please try again later."
+
+                message.contains(
+                    "Internal Server Error",
+                    ignoreCase = true
+                ) -> "A server error occurred. Try again later."
+
+                else -> {}
+            }
+            Result.failure(Exception(userMessage.toString()))
         }
     }
 }

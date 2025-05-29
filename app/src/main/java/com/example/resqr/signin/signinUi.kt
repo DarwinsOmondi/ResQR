@@ -58,6 +58,7 @@ fun SignInScreen(navHostController: NavHostController) {
     var password by remember { mutableStateOf("") }
     var passwordFieldError by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
+    var userRole = supabaseClient.auth.currentUserOrNull()?.role
     val gradientColors = listOf(
         Color(0xFFFF512F),
         Color(0xFFDD2476)
@@ -71,7 +72,12 @@ fun SignInScreen(navHostController: NavHostController) {
     }
     LaunchedEffect(Unit) {
         if (supabaseClient.auth.currentUserOrNull() != null) {
-            navHostController.navigate("home")
+            if (userRole == "Victim") {
+                navHostController.navigate("home")
+            } else {
+                navHostController.navigate("responder_home")
+            }
+
         }
     }
     Column(

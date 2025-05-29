@@ -51,6 +51,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.resqr.utils.supabaseClient
+import kotlinx.coroutines.delay
 
 @Composable
 fun SignUpScreen(navHostController: NavHostController) {
@@ -63,15 +64,18 @@ fun SignUpScreen(navHostController: NavHostController) {
         Color(0xFFDD2476)
     )
     var email by remember { mutableStateOf("") }
-    var fullname by remember { mutableStateOf("") }
-    var phonenumber by remember { mutableStateOf("") }
+    var fullName by remember { mutableStateOf("") }
+    var institutionName by remember { mutableStateOf("") }
+    var phoneNumber by remember { mutableStateOf("") }
+    var institutionPhoneNumber by remember { mutableStateOf("") }
+    var region by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var role by remember { mutableStateOf("") }
     var phoneFieldError by remember { mutableStateOf("") }
     var passwordFieldError by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
     var dropdownState by remember { mutableStateOf(false) }
-    var buttonState by remember { mutableStateOf(false) }
+    var buttonState by remember { mutableStateOf(true) }
     var termsAndCondtion by remember { mutableStateOf(false) }
     var color: Color = if (navHostController.currentDestination?.route == "signup") {
         Color.Red
@@ -176,81 +180,7 @@ fun SignUpScreen(navHostController: NavHostController) {
                                 horizontalAlignment = Alignment.CenterHorizontally,
                                 verticalArrangement = Arrangement.Center
                             ) {
-                                //fullname
-                                OutlinedTextField(
-                                    value = fullname,
-                                    onValueChange = { fullname = it },
-                                    label = { Text("Fullname") },
-                                    placeholder = { Text("John Doe") },
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Text,
-                                        imeAction = ImeAction.Next
-                                    ),
-                                    singleLine = true,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        focusedIndicatorColor = Color(0xFF6B48FF),
-                                        unfocusedIndicatorColor = Color.Black,
-                                        focusedTextColor = Color.Black,
-                                        unfocusedTextColor = Color.Black,
-                                    )
-                                )
-                                //email
-                                OutlinedTextField(
-                                    value = email,
-                                    onValueChange = { email = it },
-                                    label = { Text("Email") },
-                                    placeholder = { Text("johndoe@gmail.com") },
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Email,
-                                        imeAction = ImeAction.Next
-                                    ),
-                                    singleLine = true,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        focusedIndicatorColor = Color(0xFF6B48FF),
-                                        unfocusedIndicatorColor = Color.Black,
-                                        focusedTextColor = Color.Black,
-                                        unfocusedTextColor = Color.Black,
-                                    )
-                                )
-                                OutlinedTextField(
-                                    value = phonenumber,
-                                    onValueChange = {
-                                        phonenumber = it
-                                        phoneFieldError =
-                                            if (phonenumber.length < 10) {
-                                                "Phone number must be 10 numbers"
-                                            } else {
-                                                ""
-                                            }
-                                    },
-                                    label = {
-                                        Text(
-                                            if (phoneFieldError.isNotEmpty()) phoneFieldError else "PhoneNumber",
-                                            color = phoneErrorColor
-                                        )
-                                    },
-                                    placeholder = { Text("0712345678") },
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Number,
-                                        imeAction = ImeAction.Next
-                                    ),
-                                    singleLine = true,
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        focusedIndicatorColor = Color(0xFF6B48FF),
-                                        unfocusedIndicatorColor = Color.Black,
-                                        focusedTextColor = Color.Black,
-                                        unfocusedTextColor = Color.Black,
-                                    )
-                                )
+                                //user category(role)
                                 OutlinedTextField(
                                     value = role,
                                     onValueChange = { role = it },
@@ -286,65 +216,283 @@ fun SignUpScreen(navHostController: NavHostController) {
                                     }
                                 )
 
-                                DropdownMenu(
-                                    expanded = dropdownState,
-                                    onDismissRequest = { dropdownState = false }
-                                ) {
-                                    listOfRoles.forEach {
-                                        DropdownMenuItem(
-                                            text = { Text(it) },
-                                            onClick = {
-                                                role = it
-                                                dropdownState = false
-                                            }
+                                if (role == "Responder") {
+                                    OutlinedTextField(
+                                        value = institutionName,
+                                        onValueChange = { institutionName = it },
+                                        label = { Text("Institution") },
+                                        placeholder = { Text("Kenya Red Cross") },
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Text,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(0xFF6B48FF),
+                                            unfocusedIndicatorColor = Color.Black,
+                                            focusedTextColor = Color.Black,
+                                            unfocusedTextColor = Color.Black,
                                         )
-                                    }
-                                }
+                                    )
 
-                                OutlinedTextField(
-                                    value = password,
-                                    onValueChange = {
-                                        password = it
-                                        passwordFieldError = if (password.length < 8) {
-                                            "Password must be at least  8 characters"
-                                        } else {
-                                            ""
-                                        }
-                                    },
-                                    label = {
-                                        Text(
-                                            if (passwordFieldError.isNotEmpty()) passwordFieldError else "Password",
-                                            color = passwordErrorColor
+                                    OutlinedTextField(
+                                        value = region,
+                                        onValueChange = { region = it },
+                                        label = { Text("Region") },
+                                        placeholder = { Text("Nairobi") },
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Text,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(0xFF6B48FF),
+                                            unfocusedIndicatorColor = Color.Black,
+                                            focusedTextColor = Color.Black,
+                                            unfocusedTextColor = Color.Black,
                                         )
-                                    },
-                                    placeholder = { Text("********") },
-                                    visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
-                                    keyboardOptions = KeyboardOptions(
-                                        keyboardType = KeyboardType.Password,
-                                        imeAction = ImeAction.Next
-                                    ),
-                                    singleLine = true,
-                                    trailingIcon = {
-                                        IconButton(onClick = {
-                                            passwordVisible = !passwordVisible
-                                        }) {
-                                            Icon(
-                                                imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                                                contentDescription = if (passwordVisible) "Hide password" else "Show password",
-                                                tint = Color.Black
+                                    )
+
+                                    OutlinedTextField(
+                                        value = email,
+                                        onValueChange = { email = it },
+                                        label = { Text("Email") },
+                                        placeholder = { Text("johndoe@gmail.com") },
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Email,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(0xFF6B48FF),
+                                            unfocusedIndicatorColor = Color.Black,
+                                            focusedTextColor = Color.Black,
+                                            unfocusedTextColor = Color.Black,
+                                        )
+                                    )
+                                    OutlinedTextField(
+                                        value = institutionPhoneNumber,
+                                        onValueChange = {
+                                            institutionPhoneNumber = it
+                                            phoneFieldError =
+                                                if (institutionPhoneNumber.length < 10) {
+                                                    "Phone number must be 10 numbers"
+                                                } else {
+                                                    ""
+                                                }
+                                        },
+                                        label = {
+                                            Text(
+                                                if (phoneFieldError.isNotEmpty()) phoneFieldError else "Contact Number",
+                                                color = phoneErrorColor
+                                            )
+                                        },
+                                        placeholder = { Text("0712345678") },
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Number,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(0xFF6B48FF),
+                                            unfocusedIndicatorColor = Color.Black,
+                                            focusedTextColor = Color.Black,
+                                            unfocusedTextColor = Color.Black,
+                                        )
+                                    )
+                                    OutlinedTextField(
+                                        value = password,
+                                        onValueChange = {
+                                            password = it
+                                            passwordFieldError = if (password.length < 8) {
+                                                "Password must be at least  8 characters"
+                                            } else {
+                                                ""
+                                            }
+                                        },
+                                        label = {
+                                            Text(
+                                                if (passwordFieldError.isNotEmpty()) passwordFieldError else "Password",
+                                                color = passwordErrorColor
+                                            )
+                                        },
+                                        placeholder = { Text("********") },
+                                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Password,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        singleLine = true,
+                                        trailingIcon = {
+                                            IconButton(onClick = {
+                                                passwordVisible = !passwordVisible
+                                            }) {
+                                                Icon(
+                                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                                    contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                                    tint = Color.Black
+                                                )
+                                            }
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(0xFF6B48FF),
+                                            unfocusedIndicatorColor = Color.Black,
+                                            focusedTextColor = Color.Black,
+                                            unfocusedTextColor = Color.Black,
+                                        )
+                                    )
+                                } else {
+                                    //fullname
+                                    OutlinedTextField(
+                                        value = fullName,
+                                        onValueChange = { fullName = it },
+                                        label = { Text("Fullname") },
+                                        placeholder = { Text("John Doe") },
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Text,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(0xFF6B48FF),
+                                            unfocusedIndicatorColor = Color.Black,
+                                            focusedTextColor = Color.Black,
+                                            unfocusedTextColor = Color.Black,
+                                        )
+                                    )
+                                    //email
+                                    OutlinedTextField(
+                                        value = email,
+                                        onValueChange = { email = it },
+                                        label = { Text("Email") },
+                                        placeholder = { Text("johndoe@gmail.com") },
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Email,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(0xFF6B48FF),
+                                            unfocusedIndicatorColor = Color.Black,
+                                            focusedTextColor = Color.Black,
+                                            unfocusedTextColor = Color.Black,
+                                        )
+                                    )
+                                    OutlinedTextField(
+                                        value = phoneNumber,
+                                        onValueChange = {
+                                            phoneNumber = it
+                                            phoneFieldError =
+                                                if (phoneNumber.length < 10) {
+                                                    "Phone number must be 10 numbers"
+                                                } else {
+                                                    ""
+                                                }
+                                        },
+                                        label = {
+                                            Text(
+                                                if (phoneFieldError.isNotEmpty()) phoneFieldError else "PhoneNumber",
+                                                color = phoneErrorColor
+                                            )
+                                        },
+                                        placeholder = { Text("0712345678") },
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Number,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        singleLine = true,
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(0xFF6B48FF),
+                                            unfocusedIndicatorColor = Color.Black,
+                                            focusedTextColor = Color.Black,
+                                            unfocusedTextColor = Color.Black,
+                                        )
+                                    )
+
+                                    DropdownMenu(
+                                        expanded = dropdownState,
+                                        onDismissRequest = { dropdownState = false }
+                                    ) {
+                                        listOfRoles.forEach {
+                                            DropdownMenuItem(
+                                                text = { Text(it) },
+                                                onClick = {
+                                                    role = it
+                                                    dropdownState = false
+                                                }
                                             )
                                         }
-                                    },
-                                    modifier = Modifier.fillMaxWidth(),
-                                    colors = TextFieldDefaults.colors(
-                                        focusedContainerColor = Color.Transparent,
-                                        unfocusedContainerColor = Color.Transparent,
-                                        focusedIndicatorColor = Color(0xFF6B48FF),
-                                        unfocusedIndicatorColor = Color.Black,
-                                        focusedTextColor = Color.Black,
-                                        unfocusedTextColor = Color.Black,
+                                    }
+
+                                    OutlinedTextField(
+                                        value = password,
+                                        onValueChange = {
+                                            password = it
+                                            passwordFieldError = if (password.length < 8) {
+                                                "Password must be at least  8 characters"
+                                            } else {
+                                                ""
+                                            }
+                                        },
+                                        label = {
+                                            Text(
+                                                if (passwordFieldError.isNotEmpty()) passwordFieldError else "Password",
+                                                color = passwordErrorColor
+                                            )
+                                        },
+                                        placeholder = { Text("********") },
+                                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
+                                        keyboardOptions = KeyboardOptions(
+                                            keyboardType = KeyboardType.Password,
+                                            imeAction = ImeAction.Next
+                                        ),
+                                        singleLine = true,
+                                        trailingIcon = {
+                                            IconButton(onClick = {
+                                                passwordVisible = !passwordVisible
+                                            }) {
+                                                Icon(
+                                                    imageVector = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                                                    contentDescription = if (passwordVisible) "Hide password" else "Show password",
+                                                    tint = Color.Black
+                                                )
+                                            }
+                                        },
+                                        modifier = Modifier.fillMaxWidth(),
+                                        colors = TextFieldDefaults.colors(
+                                            focusedContainerColor = Color.Transparent,
+                                            unfocusedContainerColor = Color.Transparent,
+                                            focusedIndicatorColor = Color(0xFF6B48FF),
+                                            unfocusedIndicatorColor = Color.Black,
+                                            focusedTextColor = Color.Black,
+                                            unfocusedTextColor = Color.Black,
+                                        )
                                     )
-                                )
+                                }
                                 Spacer(Modifier.height(16.dp))
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -356,25 +504,42 @@ fun SignUpScreen(navHostController: NavHostController) {
                                     )
                                     Text("Terms and  Conditions")
                                 }
-                                if (email.isNotEmpty() && fullname.isNotEmpty() && phonenumber.isNotEmpty() && role.isNotEmpty() && password.isNotEmpty() && termsAndCondtion == true) {
-                                    buttonState = true
-                                } else {
-                                    buttonState
-                                }
+//                                if (email.isNotEmpty() && fullName.isNotEmpty() && phoneNumber.isNotEmpty() && role.isNotEmpty() && password.isNotEmpty() && termsAndCondtion == true) {
+//                                    buttonState = true
+//                                } else {
+//                                    buttonState
+//                                }
                                 Button(
                                     onClick = {
-                                        signupviemodel.signUpUser(
-                                            email,
-                                            fullname,
-                                            phonenumber,
-                                            password,
-                                            role
-                                        )
-                                        if (uiState.success != null) {
-                                            navHostController.navigate("permission_request") {
-                                                popUpTo("signup") { inclusive = true }
+                                        if (role == "Responder") {
+                                            signupviemodel.signUpInstitution(
+                                                email,
+                                                institutionName,
+                                                institutionPhoneNumber,
+                                                password,
+                                                role,
+                                                region,
+                                            )
+                                            if (uiState.success != null) {
+                                                navHostController.navigate("permission_request") {
+                                                    popUpTo("signup") { inclusive = true }
+                                                }
+                                            }
+                                        } else {
+                                            signupviemodel.signUpUser(
+                                                email,
+                                                fullName,
+                                                phoneNumber,
+                                                password,
+                                                role
+                                            )
+                                            if (uiState.success != null) {
+                                                navHostController.navigate("permission_request") {
+                                                    popUpTo("signup") { inclusive = true }
+                                                }
                                             }
                                         }
+
                                     },
                                     Modifier
                                         .fillMaxWidth(),
