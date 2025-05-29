@@ -22,7 +22,6 @@
 * ### 🧬 **Medical Profile Management**
 
   Securely store medical data such as:
-
   * Blood type
   * Allergies
   * Chronic conditions
