@@ -1,7 +1,10 @@
 package com.example.resqr.responderhome
 
+import android.app.Activity
 import android.content.Context
+import android.content.Intent
 import android.os.Build
+import androidx.activity.result.ActivityResultLauncher
 import androidx.annotation.RequiresApi
 import androidx.compose.animation.animateContentSize
 import androidx.compose.animation.core.tween
@@ -17,6 +20,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ExitToApp
 import androidx.compose.material.icons.automirrored.filled.Logout
 import androidx.compose.material.icons.filled.Logout
+import androidx.compose.material.icons.filled.MedicalServices
 import androidx.compose.material.icons.filled.Person2
 import androidx.compose.material.icons.filled.QrCodeScanner
 import androidx.compose.material.icons.filled.Refresh
@@ -29,6 +33,8 @@ import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.semantics.contentDescription
+import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -39,15 +45,23 @@ import androidx.navigation.NavHostController
 import com.example.resqr.clienthome.BannerMessage
 import com.example.resqr.clientprofile.LoadingShimmerEffect
 import com.example.resqr.model.Alert
+import com.example.resqr.model.User
+import com.example.resqr.model.UserMedicalData
 import com.example.resqr.ui.theme.ResponderTheme
 import com.example.resqr.utils.supabaseClient
+import com.google.zxing.integration.android.IntentIntegrator
 import kotlinx.coroutines.launch
+import kotlinx.serialization.json.Json
 
 @OptIn(ExperimentalMaterial3Api::class)
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
-fun ResponderHomeUi(navHostController: NavHostController, onScanQrCode: () -> Unit) {
+fun ResponderHomeUi(
+    navHostController: NavHostController, qrScanLauncher: ActivityResultLauncher<Intent>,
+    scannedResult: State<String?>
+) {
     val context = LocalContext.current
+    val activity = context as? Activity
     val supabaseClient = supabaseClient
     val responderRepository = ResponderRepository(supabaseClient)
     val responderViewModel: ResponderViewModel = viewModel(
@@ -242,7 +256,22 @@ fun ResponderHomeUi(navHostController: NavHostController, onScanQrCode: () -> Un
 
                                 Button(
                                     onClick = {
-                                        onScanQrCode()
+                                        // onScanQrCode()
+                                        //  navHostController.navigate("qr_scanner_screen")
+                                        val integrator = IntentIntegrator(activity)
+                                        integrator.setDesiredBarcodeFormats(IntentIntegrator.QR_CODE)
+                                        integrator.setPrompt("Scan a QR Code")
+                                        integrator.setCameraId(0)
+                                        integrator.setBeepEnabled(true)
+                                        integrator.setOrientationLocked(true)
+                                        integrator.setBarcodeImageEnabled(true)
+                                        integrator.addExtra(
+                                            "android.intent.extra.screenOrientation",
+                                            android.content.pm.ActivityInfo.SCREEN_ORIENTATION_PORTRAIT
+                                        )
+
+                                        val scanIntent = integrator.createScanIntent()
+                                        qrScanLauncher.launch(scanIntent)
                                     },
                                     modifier = Modifier
                                         .fillMaxWidth()
@@ -273,6 +302,21 @@ fun ResponderHomeUi(navHostController: NavHostController, onScanQrCode: () -> Un
                                         )
                                     }
                                 }
+
+                                val user: User? = try {
+                                    scannedResult.value?.let {
+                                        Json.decodeFromString<User>(
+                                            it
+                                        )
+                                    }
+                                } catch (e: Exception) {
+                                    null // or log the error
+                                }
+                                if (user != null) {
+                                    InfoCard(user)
+                                } else {
+                                    "User Medical Report error"
+                                }
                             }
                         }
                     }
@@ -281,6 +325,118 @@ fun ResponderHomeUi(navHostController: NavHostController, onScanQrCode: () -> Un
         )
     }
 }
+
+@Composable
+fun InfoCard(user: User) {
+    Card(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(8.dp)
+            .semantics { contentDescription = "Medical Information Card" },
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
+        shape = MaterialTheme.shapes.medium,
+        elevation = CardDefaults.cardElevation(8.dp)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)) {
+            Row(
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.Default.MedicalServices,
+                    contentDescription = null,
+                    tint = MaterialTheme.colorScheme.primary,
+                    modifier = Modifier.size(28.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Medical Profile",
+                    style = MaterialTheme.typography.titleMedium,
+                    fontWeight = FontWeight.Bold
+                )
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text(
+                "Basic Information",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            Text("Blood Type: ${user.medicalData.blood_type}")
+            Text("Gender: ${user.medicalData.gender}")
+            Text("Conditions: ${user.medicalData.conditions}")
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Divider()
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                "Allergies",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            if (user.medicalData.allergies.isNotEmpty()) {
+                user.medicalData.allergies.forEach {
+                    Text(
+                        text = "• ${it.substance}: ${it.reaction}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            } else {
+                Text("None", style = MaterialTheme.typography.bodySmall)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Divider()
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                "Medications",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            if (user.medicalData.medications.isNotEmpty()) {
+                user.medicalData.medications.forEach {
+                    Text(
+                        text = "• ${it.name}: ${it.dosage}, ${it.frequency}, ${it.duration}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            } else {
+                Text("None", style = MaterialTheme.typography.bodySmall)
+            }
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Divider()
+
+            Spacer(modifier = Modifier.height(12.dp))
+            Text(
+                "Emergency Contacts",
+                style = MaterialTheme.typography.labelLarge,
+                fontWeight = FontWeight.SemiBold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Spacer(modifier = Modifier.height(4.dp))
+            if (user.medicalData.emergency_contact.isNotEmpty()) {
+                user.medicalData.emergency_contact.forEach {
+                    Text(
+                        text = "• ${it.name}: ${it.phone_number}",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            } else {
+                Text("None", style = MaterialTheme.typography.bodySmall)
+            }
+        }
+    }
+}
+
 
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable

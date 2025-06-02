@@ -49,6 +49,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.resqr.utils.supabaseClient
 import io.github.jan.supabase.auth.auth
+import kotlinx.coroutines.delay
 
 @Composable
 fun SignInScreen(navHostController: NavHostController) {
@@ -241,8 +242,13 @@ fun SignInScreen(navHostController: NavHostController) {
                                             email,
                                             password
                                         )
+                                        val userRole = supabaseClient.auth.currentUserOrNull()?.role
                                         if (uiState.value.success != null) {
-                                            navHostController.navigate("home")
+                                            if (userRole == "Responder") {
+                                                navHostController.navigate("responder_home")
+                                            } else {
+                                                navHostController.navigate("home")
+                                            }
 
                                         }
                                     },
