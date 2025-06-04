@@ -8,7 +8,6 @@ Here's a sample `README.md` for your **ResQR** project:
 ResQR is an Android app built with **Jetpack Compose** and **Supabase** that helps responders scan QR codes to instantly retrieve a user’s critical medical information in real time. It empowers emergency response teams with faster access to patient details like allergies, conditions, medications, and emergency contacts.
 
 ---
-
 ## ✨ Features
 
 - 🔐 **Authentication** – Sign in & Sign up using Supabase Auth
