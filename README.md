@@ -1,13 +1,11 @@
 Here's a sample `README.md` for your **ResQR** project:
 
----
 
 ```markdown
 # ResQR 🆘 – Emergency Medical QR Scanner App
 
 ResQR is an Android app built with **Jetpack Compose** and **Supabase** that helps responders scan QR codes to instantly retrieve a user’s critical medical information in real time. It empowers emergency response teams with faster access to patient details like allergies, conditions, medications, and emergency contacts.
 
----
 ## ✨ Features
 
 - 🔐 **Authentication** – Sign in & Sign up using Supabase Auth
@@ -17,7 +15,6 @@ ResQR is an Android app built with **Jetpack Compose** and **Supabase** that hel
 - 👤 **Client Profile Management** – Update and maintain your medical details
 - 🌐 **Realtime Sync** – Supabase backend for user data and auth
 
----
 
 ## 🧠 Tech Stack
 
@@ -78,7 +75,6 @@ ResQR/
 
 4. Run the app on a physical/emulated device
 
----
 
 ## 🧪 Sample QR Payload
 
@@ -98,7 +94,6 @@ This is the structure your QR code should contain:
 
 You can generate QR codes using online tools or backend encoders with this JSON format.
 
----
 
 ## 🤝 Contributing
 
@@ -107,8 +102,6 @@ Contributions are welcome! Feel free to:
 * File issues
 * Submit PRs
 * Suggest new features
-
----
 
 ## 📄 License
 
