@@ -1,6 +1,5 @@
 Here's a sample `README.md` for your **ResQR** project:
 
-
 ```markdown
 # ResQR 🆘 – Emergency Medical QR Scanner App
 
