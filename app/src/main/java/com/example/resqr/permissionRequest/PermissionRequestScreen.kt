@@ -7,6 +7,7 @@ import android.os.Build
 import android.provider.Settings
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
@@ -20,6 +21,7 @@ import com.example.resqr.utils.supabaseClient
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.delay
 
+@RequiresApi(Build.VERSION_CODES.TIRAMISU)
 @Composable
 fun PermissionRequestScreen(navController: NavHostController) {
     val context = LocalContext.current
@@ -35,9 +37,6 @@ fun PermissionRequestScreen(navController: NavHostController) {
         Manifest.permission.POST_NOTIFICATIONS,
         Manifest.permission.CAMERA // ✅ Added CAMERA permission
     ).apply {
-        if (Build.VERSION.SDK_INT <= Build.VERSION_CODES.P) {
-            add(Manifest.permission.WRITE_EXTERNAL_STORAGE)
-        }
     }.toTypedArray()
 
     // Permission launcher
