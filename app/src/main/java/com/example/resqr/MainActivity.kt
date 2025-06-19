@@ -30,6 +30,10 @@ import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
 import io.github.jan.supabase.auth.auth
 import androidx.compose.runtime.State
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.resqr.clienthome.ClientHomeFactory
+import com.example.resqr.clienthome.ClientRepository
+import com.example.resqr.clienthome.ClientViewmodel
 
 
 class MainActivity : ComponentActivity() {
@@ -78,6 +82,9 @@ fun ResQR(
     scannedResult: State<String?>
 ) {
     val navController = rememberNavController()
+    val supabaseClient = supabaseClient
+    val clientRepository = ClientRepository(supabaseClient)
+    val clientViewModel: ClientViewmodel = viewModel(factory = ClientHomeFactory(clientRepository))
     NavHost(
         navController = navController,
         startDestination = startDestination
