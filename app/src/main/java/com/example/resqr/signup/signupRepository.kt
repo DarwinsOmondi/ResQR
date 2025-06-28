@@ -35,7 +35,7 @@ class SignupRepository(private val supabaseClient: SupabaseClient) {
                 Result.failure(Exception("Sign Up failed"))
             }
         } catch (e: Exception) {
-            Log.e("SignUP", "${e.message}")
+            Log.e("SignUP", "$e")
             val message = e.message ?: ""
             val userMessage = when {
                 message.contains(

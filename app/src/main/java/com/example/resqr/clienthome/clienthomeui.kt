@@ -141,6 +141,8 @@ fun ClientHomeScreen(navHostController: NavHostController) {
     val context = LocalContext.current
     var mapLocation by remember { mutableStateOf<GeoPoint?>(null) }
 
+    AlertEmergencyListener(context).startListening(clientViewModel)
+
     LaunchedEffect(Unit) {
         clientViewModel.fetchAlertData(currentUser?.id.toString())
         val locationService = LocationService(context)
