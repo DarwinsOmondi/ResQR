@@ -35,7 +35,8 @@ fun PermissionRequestScreen(navController: NavHostController) {
     val permissions = mutableListOf(
         Manifest.permission.ACCESS_FINE_LOCATION,
         Manifest.permission.POST_NOTIFICATIONS,
-        Manifest.permission.CAMERA // ✅ Added CAMERA permission
+        Manifest.permission.CAMERA,
+        Manifest.permission.RECORD_AUDIO
     ).apply {
     }.toTypedArray()
 
