@@ -95,7 +95,7 @@ fun PermissionRequestScreen(navController: NavHostController) {
                 title = { Text("Permissions Required") },
                 text = {
                     Text(
-                        "This app needs location, notifications, camera, and storage permissions to function properly. Please grant them in Settings.",
+                        "This app needs location, notifications, camera,microphone ,audio recording, and storage permissions to function properly. Please grant them in Settings.",
                         textAlign = TextAlign.Center
                     )
                 },
