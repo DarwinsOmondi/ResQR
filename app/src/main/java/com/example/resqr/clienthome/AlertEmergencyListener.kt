@@ -21,23 +21,23 @@ class AlertEmergencyListener(val context: Context) {
     fun startListening(clientViewmodel: ClientViewmodel) {
         speechRecognizer.setRecognitionListener(object : RecognitionListener {
             override fun onReadyForSpeech(params: Bundle?) {
-                TODO("Not yet implemented")
+
             }
 
             override fun onBeginningOfSpeech() {
-                TODO("Not yet implemented")
+
             }
 
             override fun onRmsChanged(rmsdB: Float) {
-                TODO("Not yet implemented")
+
             }
 
             override fun onBufferReceived(buffer: ByteArray?) {
-                TODO("Not yet implemented")
+
             }
 
             override fun onEndOfSpeech() {
-                TODO("Not yet implemented")
+
             }
 
             override fun onError(error: Int) {
@@ -57,12 +57,13 @@ class AlertEmergencyListener(val context: Context) {
             }
 
             override fun onPartialResults(partialResults: Bundle?) {
-                TODO("Not yet implemented")
+
             }
 
             override fun onEvent(eventType: Int, params: Bundle?) {
-                TODO("Not yet implemented")
+
             }
         })
+        speechRecognizer.startListening(speechIntent)
     }
 }

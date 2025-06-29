@@ -26,7 +26,6 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -49,7 +48,6 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.resqr.utils.supabaseClient
 import io.github.jan.supabase.auth.auth
-import kotlinx.coroutines.delay
 
 @Composable
 fun SignInScreen(navHostController: NavHostController) {
@@ -59,27 +57,16 @@ fun SignInScreen(navHostController: NavHostController) {
     var password by remember { mutableStateOf("") }
     var passwordFieldError by remember { mutableStateOf("") }
     var passwordVisible by remember { mutableStateOf(false) }
-    var userRole = supabaseClient.auth.currentUserOrNull()?.role
     val gradientColors = listOf(
         Color(0xFFFF512F),
         Color(0xFFDD2476)
     )
     val uiState = signinviewmodel.uiState.collectAsState()
     var buttonState by remember { mutableStateOf(false) }
-    var passwordErrorColor: Color = if (passwordFieldError.isNotEmpty()) {
+    val passwordErrorColor: Color = if (passwordFieldError.isNotEmpty()) {
         Color.Red
     } else {
         Color.Gray
-    }
-    LaunchedEffect(Unit) {
-        if (supabaseClient.auth.currentUserOrNull() != null) {
-            if (userRole == "Victim") {
-                navHostController.navigate("home")
-            } else {
-                navHostController.navigate("responder_home")
-            }
-
-        }
     }
     Column(
         modifier = Modifier

@@ -2,7 +2,6 @@ package com.example.resqr.clienthome
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-
 class ClientHomeFactory(private val clientRepository: ClientRepository) :
     ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
