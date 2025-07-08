@@ -1,4 +1,8 @@
 package com.example.resqr.domain.usecase.user
 
-class UserUseCase {
-}
+data class UserUseCase(
+    val insertUser: InsertUserUseCase,
+    val getUser: GetUserUseCase,
+    val updateUser: UpdateUserUseCase,
+    val deleteUser: DeleteUserUseCase
+)

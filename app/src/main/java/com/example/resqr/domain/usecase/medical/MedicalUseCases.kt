@@ -1,4 +1,9 @@
 package com.example.resqr.domain.usecase.medical
 
-class MedicalUseCases {
-}
+data class MedicalUseCases(
+    val insertMedicalData: InsertMedicalDataUseCase,
+    val getMedicalData: GetMedicalDataUseCase,
+    val deleteMedicalData: DeleteMedicalDataUseCase,
+    val updateMedicalData: UpdateMedicalDataUseCase,
+    val getCurrentUserMedicalData: GetCurrentUserMedicalDataUseCase
+)

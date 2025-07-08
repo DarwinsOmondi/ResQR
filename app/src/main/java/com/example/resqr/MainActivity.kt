@@ -12,6 +12,7 @@ import androidx.activity.result.ActivityResultLauncher
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -23,18 +24,18 @@ import com.example.resqr.permissionRequest.PermissionRequestScreen
 import com.example.resqr.responderhome.QRScannerScreen
 import com.example.resqr.responderhome.ResponderHomeUi
 import com.example.resqr.signin.SignInScreen
-import com.example.resqr.signup.SignUpScreen
 import com.example.resqr.ui.theme.ResQRTheme
 import com.example.resqr.utils.supabaseClient
-import com.google.zxing.integration.android.IntentIntegrator
 import com.google.zxing.integration.android.IntentResult
-import io.github.jan.supabase.auth.auth
 import androidx.compose.runtime.State
-import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.resqr.clienthome.ClientHomeFactory
-import com.example.resqr.clienthome.ClientRepository
-import com.example.resqr.clienthome.ClientViewmodel
-
+import com.example.resqr.presentation.screen.auth.LogIn
+import com.example.resqr.presentation.screen.auth.SignUp
+import com.example.resqr.presentation.screen.responder.ResponderHomeScreen
+import com.example.resqr.presentation.screen.shared.SplashScreen
+import com.example.resqr.presentation.screen.victim.AddMedicalDataScreen
+import com.example.resqr.presentation.screen.victim.AddMedicalDataScreenContents
+import com.example.resqr.presentation.screen.victim.VictimHomeScreen
+import com.google.zxing.integration.android.IntentIntegrator
 
 class MainActivity : ComponentActivity() {
 
@@ -44,6 +45,7 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     override fun onCreate(savedInstanceState: Bundle?) {
+        setTheme(R.style.Theme_ResQR)
         super.onCreate(savedInstanceState)
 
         // Register the ActivityResultLauncher
@@ -54,7 +56,11 @@ class MainActivity : ComponentActivity() {
                 if (intentResult != null) {
                     scannedResultState.value = intentResult.contents // Update the state
                     if (scannedResultState.value != null) {
-                        Toast.makeText(this, "Scanned: ${scannedResultState.value}", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(
+                            this,
+                            "Scanned: ${scannedResultState.value}",
+                            Toast.LENGTH_SHORT
+                        ).show()
                     } else {
 
                     }
@@ -65,9 +71,7 @@ class MainActivity : ComponentActivity() {
 
         setContent {
             ResQRTheme {
-                val startDestination =
-                    if (supabaseClient.auth.currentUserOrNull() != null) "home" else "signin"
-                ResQR(startDestination, qrScanLauncher, scannedResultState) // Pass the state
+                ResQR(qrScanLauncher, scannedResultState)
             }
         }
     }
@@ -77,20 +81,34 @@ class MainActivity : ComponentActivity() {
 @RequiresApi(Build.VERSION_CODES.O)
 @Composable
 fun ResQR(
-    startDestination: String,
     qrScanLauncher: ActivityResultLauncher<Intent>,
     scannedResult: State<String?>
 ) {
     val navController = rememberNavController()
-    val supabaseClient = supabaseClient
-    val clientRepository = ClientRepository(supabaseClient)
-    val clientViewModel: ClientViewmodel = viewModel(factory = ClientHomeFactory(clientRepository))
+//    LaunchedEffect(Unit) {
+//        when (supabaseClient.auth.currentUserOrNull()?.userMetadata?.get(
+//            "role"
+//        )?.toString()?.replace("\"", "") ?: "null"
+//        ) {
+//            "Victim" -> {
+//                navController.navigate("home")
+//            }
+//
+//            "Responder" -> {
+//                navController.navigate("responder_home")
+//            }
+//
+//            else -> {
+//                navController.navigate("signin")
+//            }
+//        }
+//    }
     NavHost(
         navController = navController,
-        startDestination = startDestination
+        startDestination = "splashscreen"
     ) {
         composable("signup") {
-            SignUpScreen(navController)
+            SignUp(navController)
         }
         composable("signin") {
             SignInScreen(navController)
@@ -112,6 +130,21 @@ fun ResQR(
         }
         composable("qr_scanner_screen") {
             QRScannerScreen()
+        }
+        composable("splashscreen") {
+            SplashScreen(navController)
+        }
+        composable("login") {
+            LogIn(navController)
+        }
+        composable("victim_home_screen") {
+            VictimHomeScreen(navController)
+        }
+        composable("responder_home_screen") {
+            ResponderHomeScreen(navController)
+        }
+        composable("add_medical_data") {
+            AddMedicalDataScreen()
         }
     }
 }

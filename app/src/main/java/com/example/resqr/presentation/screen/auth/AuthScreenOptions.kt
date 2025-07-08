@@ -1,6 +1,6 @@
 package com.example.resqr.presentation.screen.auth
 
-enum class AuthScreenState {
+enum class AuthScreenOptions {
     Login,
     SignUp
 }

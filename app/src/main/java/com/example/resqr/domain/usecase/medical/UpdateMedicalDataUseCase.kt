@@ -1,4 +1,9 @@
 package com.example.resqr.domain.usecase.medical
 
-class UpdateMedicalDataUseCase {
+import com.example.resqr.domain.model.medicalRecordModel.UserWithMedicalData
+import com.example.resqr.domain.repository.medicalRepository.MedicalRepository
+
+class UpdateMedicalDataUseCase(private val medicalRepository: MedicalRepository) {
+    operator fun invoke(userWithMedicalData: UserWithMedicalData) =
+        medicalRepository.updateMedicalData(userWithMedicalData)
 }

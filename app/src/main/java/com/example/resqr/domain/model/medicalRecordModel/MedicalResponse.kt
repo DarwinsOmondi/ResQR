@@ -1,8 +1,8 @@
 package com.example.resqr.domain.model.medicalRecordModel
 
-sealed class MedicalResults {
-    object Uninitialized : MedicalResults()
-    object Loading : MedicalResults()
-    data class GetMedicalData(val medicalData: UserMedicalData?) : MedicalResults()
-    data class MedicalError(val message: String) : MedicalResults()
+sealed class MedicalResponse {
+    object Uninitialized : MedicalResponse()
+    object Loading : MedicalResponse()
+    data class GetMedicalData(val medicalData: UserWithMedicalData?) : MedicalResponse()
+    data class MedicalError(val message: String) : MedicalResponse()
 }

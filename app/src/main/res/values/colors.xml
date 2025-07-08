@@ -7,6 +7,14 @@
     <color name="teal_700">#FF018786</color>
     <color name="gray_background">#FAFAFA</color>
     <color name="dark_gray_text">#333333</color>
+    <color name="splash_background">#FFFFFF</color>
+    <color name="background">#F5F5F5</color>
+    <color name="primary">#0118D8</color>
+    <color name="on_primary">#FFFFFF</color>
+    <color name="surface">#FAFAFA</color>
+    <color name="error">#B00020</color>
+    <!-- Add other colors here -->
+
 
     <!-- Gradient for Sign In / Sign Up -->
     <color name="gradient_start">#FF512F</color> <!-- Red-Orange -->

@@ -30,6 +30,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -51,6 +52,7 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import com.example.resqr.utils.supabaseClient
+import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.delay
 
 @Composable
@@ -93,7 +95,24 @@ fun SignUpScreen(navHostController: NavHostController) {
     } else {
         Color.Gray
     }
+    LaunchedEffect(Unit) {
+        when (supabaseClient.auth.currentUserOrNull()?.userMetadata?.get(
+            "role"
+        )?.toString()?.replace("\"", "") ?: "null"
+        ) {
+            "Victim" -> {
+                navHostController.navigate("home")
+            }
 
+            "Responder" -> {
+                navHostController.navigate("responder_home")
+            }
+
+            else -> {
+                navHostController.navigate("signin")
+            }
+        }
+    }
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -460,7 +479,7 @@ fun SignUpScreen(navHostController: NavHostController) {
                                         },
                                         label = {
                                             Text(
-                                                if (passwordFieldError.isNotEmpty()) passwordFieldError else "Password",
+                                                passwordFieldError.ifEmpty { "Password" },
                                                 color = passwordErrorColor
                                             )
                                         },
@@ -533,11 +552,6 @@ fun SignUpScreen(navHostController: NavHostController) {
                                                 password,
                                                 role
                                             )
-                                            if (uiState.success != null) {
-                                                navHostController.navigate("permission_request") {
-                                                    popUpTo("signup") { inclusive = true }
-                                                }
-                                            }
                                         }
 
                                     },

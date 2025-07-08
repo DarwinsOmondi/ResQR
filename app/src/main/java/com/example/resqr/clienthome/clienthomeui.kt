@@ -53,6 +53,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableDoubleStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -79,9 +80,8 @@ import com.example.resqr.model.UserMedicalData
 import com.example.resqr.utils.LocationService
 import com.example.resqr.utils.supabaseClient
 import io.github.jan.supabase.auth.auth
-import kotlinx.datetime.Clock
+import kotlinx.coroutines.delay
 import kotlinx.datetime.Clock.System
-import kotlinx.datetime.Instant
 import org.osmdroid.config.Configuration
 import org.osmdroid.tileprovider.tilesource.TileSourceFactory
 import org.osmdroid.util.GeoPoint
@@ -101,10 +101,10 @@ fun ClientHomeScreen(navHostController: NavHostController) {
     val hasStarted by clientViewModel.hasStarted.collectAsState()
     var isSheetOpen by remember { mutableStateOf(false) }
     val currentUser = supabaseClient.auth.currentUserOrNull()
-    var username = currentUser?.userMetadata?.get("fullname")
-    var useremail = currentUser?.email
-    var userphone = currentUser?.userMetadata?.get("phoneNumber")
-    var role = currentUser?.userMetadata?.get("role")
+    val username = currentUser?.userMetadata?.get("fullname")
+    val userEmail = currentUser?.email
+    val userPhone = currentUser?.userMetadata?.get("phoneNumber")
+    val role = currentUser?.userMetadata?.get("role")
     var blood_type by remember { mutableStateOf("") }
     var gender by remember { mutableStateOf("") }
     var allergyList by remember { mutableStateOf(mutableListOf<Allergy>()) }
@@ -112,8 +112,8 @@ fun ClientHomeScreen(navHostController: NavHostController) {
 
     val genderOptions = listOf("male", "female", "other")
     var selectedOption by remember { mutableStateOf(genderOptions[0]) }
-    var blooddropdownstate by remember { mutableStateOf(false) }
-    var bloodtypelist = listOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
+    var bloodDropDownState by remember { mutableStateOf(false) }
+    val bloodTypeList = listOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
 
     var medicationDialog by remember { mutableStateOf(false) }
     var allergyDialog by remember { mutableStateOf(false) }
@@ -122,10 +122,10 @@ fun ClientHomeScreen(navHostController: NavHostController) {
     var contactNumber by remember { mutableStateOf("") }
     var allergicSubstance by remember { mutableStateOf("") }
     var allergicReaction by remember { mutableStateOf("") }
-    var medicationname by remember { mutableStateOf("") }
-    var medicationdosage by remember { mutableStateOf("") }
-    var medicationfrequency by remember { mutableStateOf("") }
-    var medicationFrequencyList = listOf<String>(
+    var medicationName by remember { mutableStateOf("") }
+    var medicationDosage by remember { mutableStateOf("") }
+    var medicationFrequency by remember { mutableStateOf("") }
+    val medicationFrequencyList = listOf(
         "Daily",
         "Weekly",
         "Monthly",
@@ -135,13 +135,19 @@ fun ClientHomeScreen(navHostController: NavHostController) {
     var medicationduration by remember { mutableStateOf("") }
     var medicationList by remember { mutableStateOf(mutableListOf<Medication>()) }
     var contactList by remember { mutableStateOf(mutableListOf<Emergency_contact>()) }
-    var longitude by remember { mutableStateOf(0.0) }
-    var latitude by remember { mutableStateOf(0.0) }
+    var longitude by remember { mutableDoubleStateOf(0.0) }
+    var latitude by remember { mutableDoubleStateOf(0.0) }
     val alertResponse = uiState.alertSuccess
     val context = LocalContext.current
     var mapLocation by remember { mutableStateOf<GeoPoint?>(null) }
 
     AlertEmergencyListener(context).startListening(clientViewModel)
+    var showCard by remember { mutableStateOf(true) }
+
+    LaunchedEffect(key1 = Unit) {
+        delay(5000) // 5 seconds
+        showCard = false
+    }
 
     LaunchedEffect(Unit) {
         clientViewModel.fetchAlertData(currentUser?.id.toString())
@@ -158,7 +164,7 @@ fun ClientHomeScreen(navHostController: NavHostController) {
         latitude = latitude,
         longitude = longitude,
         resolved = "false",
-        phoneNumber = userphone.toString(),
+        phoneNumber = userPhone.toString(),
     )
 
     LaunchedEffect(countdownFinished, hasStarted) {
@@ -344,36 +350,40 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                                 if (alertResponse.resolved == "true") "Help is on the way" else "Awaiting response"
                                             val icon =
                                                 if (alertResponse.resolved == "true") Icons.Default.CheckCircle else Icons.Default.HourglassTop
-
-                                            Card(
-                                                modifier = Modifier
-                                                    .fillMaxWidth()
-                                                    .padding(horizontal = 16.dp, vertical = 8.dp)
-                                                    .height(60.dp),
-                                                shape = RoundedCornerShape(12.dp),
-                                                elevation = CardDefaults.cardElevation(6.dp),
-                                                colors = CardDefaults.cardColors(containerColor = cardColor)
-                                            ) {
-                                                Row(
+                                            if (showCard) {
+                                                Card(
                                                     modifier = Modifier
-                                                        .fillMaxSize()
-                                                        .padding(horizontal = 16.dp),
-                                                    verticalAlignment = Alignment.CenterVertically
-                                                ) {
-                                                    Icon(
-                                                        imageVector = icon,
-                                                        contentDescription = null,
-                                                        tint = Color.White,
-                                                        modifier = Modifier.size(24.dp)
-                                                    )
-                                                    Spacer(modifier = Modifier.width(12.dp))
-                                                    Text(
-                                                        text = message,
-                                                        style = MaterialTheme.typography.bodyLarge.copy(
-                                                            color = Color.Black,
-                                                            fontWeight = FontWeight.SemiBold
+                                                        .fillMaxWidth()
+                                                        .padding(
+                                                            horizontal = 16.dp,
+                                                            vertical = 8.dp
                                                         )
-                                                    )
+                                                        .height(60.dp),
+                                                    shape = RoundedCornerShape(12.dp),
+                                                    elevation = CardDefaults.cardElevation(6.dp),
+                                                    colors = CardDefaults.cardColors(containerColor = cardColor)
+                                                ) {
+                                                    Row(
+                                                        modifier = Modifier
+                                                            .fillMaxSize()
+                                                            .padding(horizontal = 16.dp),
+                                                        verticalAlignment = Alignment.CenterVertically
+                                                    ) {
+                                                        Icon(
+                                                            imageVector = icon,
+                                                            contentDescription = null,
+                                                            tint = Color.White,
+                                                            modifier = Modifier.size(24.dp)
+                                                        )
+                                                        Spacer(modifier = Modifier.width(12.dp))
+                                                        Text(
+                                                            text = message,
+                                                            style = MaterialTheme.typography.bodyLarge.copy(
+                                                                color = Color.Black,
+                                                                fontWeight = FontWeight.SemiBold
+                                                            )
+                                                        )
+                                                    }
                                                 }
                                             }
                                         } else if (uiState.error != null) {
@@ -452,7 +462,7 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                             trailingIcon = {
                                 IconButton(
                                     onClick = {
-                                        blooddropdownstate = true
+                                        bloodDropDownState = true
                                     },
                                     content = {
                                         Icon(
@@ -476,16 +486,16 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                         )
                         //BLOOD TYPE DROP DOWN
                         DropdownMenu(
-                            expanded = blooddropdownstate,
+                            expanded = bloodDropDownState,
                             onDismissRequest = {
-                                blooddropdownstate = false
+                                bloodDropDownState = false
                             },
                             content = {
-                                bloodtypelist.forEach {
+                                bloodTypeList.forEach {
                                     DropdownMenuItem(
                                         text = { Text(it, color = Color.Black) },
                                         onClick = {
-                                            blooddropdownstate = false
+                                            bloodDropDownState = false
                                             blood_type = it
                                         },
                                     )
@@ -636,19 +646,19 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                                     )
                                                     OutlinedTextField(
                                                         label = { Text("Medication Name") },
-                                                        value = medicationname,
-                                                        onValueChange = { medicationname = it },
+                                                        value = medicationName,
+                                                        onValueChange = { medicationName = it },
                                                     )
                                                     OutlinedTextField(
                                                         label = { Text("Medication Dosage") },
-                                                        value = medicationdosage,
-                                                        onValueChange = { medicationdosage = it },
+                                                        value = medicationDosage,
+                                                        onValueChange = { medicationDosage = it },
                                                     )
                                                     OutlinedTextField(
                                                         label = { Text("Medication Frequency") },
-                                                        value = medicationfrequency,
+                                                        value = medicationFrequency,
                                                         onValueChange = {
-                                                            medicationfrequency = it
+                                                            medicationFrequency = it
                                                         },
                                                         trailingIcon = {
                                                             IconButton(
@@ -680,7 +690,7 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                                                     onClick = {
                                                                         medicationFrequecyDropDownState =
                                                                             false
-                                                                        medicationfrequency = it
+                                                                        medicationFrequency = it
                                                                     }
                                                                 )
                                                             }
@@ -696,18 +706,18 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                                                     //button to save medication data
                                                     Button(
                                                         onClick = {
-                                                            if (medicationname.isNotEmpty() && medicationdosage.isNotEmpty() && medicationfrequency.isNotEmpty() && medicationduration.isNotEmpty()) {
+                                                            if (medicationName.isNotEmpty() && medicationDosage.isNotEmpty() && medicationFrequency.isNotEmpty() && medicationduration.isNotEmpty()) {
                                                                 val newMedication = Medication(
-                                                                    name = medicationname,
-                                                                    dosage = medicationdosage,
-                                                                    frequency = medicationfrequency,
+                                                                    name = medicationName,
+                                                                    dosage = medicationDosage,
+                                                                    frequency = medicationFrequency,
                                                                     duration = medicationduration
                                                                 )
                                                                 medicationList.add(newMedication)
                                                                 medicationDialog = false
-                                                                medicationname = ""
-                                                                medicationdosage = ""
-                                                                medicationfrequency = ""
+                                                                medicationName = ""
+                                                                medicationDosage = ""
+                                                                medicationFrequency = ""
                                                                 Log.e(
                                                                     "home",
                                                                     newMedication.toString()
@@ -859,8 +869,8 @@ fun ClientHomeScreen(navHostController: NavHostController) {
                         }
                         val newUser = User(
                             fullname = username.toString(),
-                            email = useremail.toString(),
-                            phone_number = userphone.toString(),
+                            email = userEmail.toString(),
+                            phone_number = userPhone.toString(),
                             role = role.toString(),
                             medicalData = UserMedicalData(
                                 blood_type = blood_type,

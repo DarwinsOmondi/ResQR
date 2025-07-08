@@ -1,4 +1,8 @@
 package com.example.resqr.domain.usecase.user
 
-class InsertUserUseCase {
+import com.example.resqr.domain.model.authModel.User
+import com.example.resqr.domain.repository.userRepository.UserRepository
+
+class InsertUserUseCase(private val userRepository: UserRepository) {
+    operator fun invoke(user: User) = userRepository.insertUser(user = user)
 }

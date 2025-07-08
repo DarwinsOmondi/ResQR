@@ -1,4 +1,7 @@
 package com.example.resqr.domain.usecase.auth
 
-class GetCurrentUserUseCase {
+import com.example.resqr.domain.repository.authRepository.AuthRepository
+
+class GetCurrentUserUseCase(private val authRepository: AuthRepository) {
+    suspend operator fun invoke() = authRepository.getCurrentUser()
 }

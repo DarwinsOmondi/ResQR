@@ -1,3 +1,7 @@
 package com.example.resqr.domain.model.medicalRecordModel
 
-data class MedicalRecord()
+import com.example.resqr.model.UserMedicalData
+
+data class MedicalRecord(
+    val medicalData: UserMedicalData
+)

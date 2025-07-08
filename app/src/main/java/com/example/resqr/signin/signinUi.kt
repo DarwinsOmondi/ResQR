@@ -26,6 +26,7 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -67,6 +68,24 @@ fun SignInScreen(navHostController: NavHostController) {
         Color.Red
     } else {
         Color.Gray
+    }
+    LaunchedEffect(Unit) {
+        when (supabaseClient.auth.currentUserOrNull()?.userMetadata?.get(
+            "role"
+        )?.toString()?.replace("\"", "") ?: "null"
+        ) {
+            "Victim" -> {
+                navHostController.navigate("home")
+            }
+
+            "Responder" -> {
+                navHostController.navigate("responder_home")
+            }
+
+            else -> {
+                navHostController.navigate("signin")
+            }
+        }
     }
     Column(
         modifier = Modifier
@@ -229,15 +248,6 @@ fun SignInScreen(navHostController: NavHostController) {
                                             email,
                                             password
                                         )
-                                        val userRole = supabaseClient.auth.currentUserOrNull()?.role
-                                        if (uiState.value.success != null) {
-                                            if (userRole == "Responder") {
-                                                navHostController.navigate("responder_home")
-                                            } else {
-                                                navHostController.navigate("home")
-                                            }
-
-                                        }
                                     },
                                     Modifier
                                         .fillMaxWidth(),

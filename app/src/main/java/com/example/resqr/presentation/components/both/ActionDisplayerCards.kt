@@ -1,4 +1,4 @@
-package com.example.resqr.presentation.components
+package com.example.resqr.presentation.components.both
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Emergency
+import androidx.compose.material.icons.filled.HealthAndSafety
 import androidx.compose.material.icons.filled.HeartBroken
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -97,6 +98,20 @@ fun DisplayerCardsPreview2() {
         content = "Tap to initiate",
         iconColor = Color.White,
         cardColor = Color.Red,
+        onCardClick = {}
+    )
+}
+
+@Preview(showBackground = true)
+@Composable
+fun DisplayerCardsPreview3() {
+    ActionDisplayerCards(
+        icon = Icons.Default.HealthAndSafety,
+        contentDescription = "First Responder",
+        title = "First Responder",
+        content = "Emergency response",
+        iconColor = Color.White,
+        cardColor = Color(0xFF1976D2),
         onCardClick = {}
     )
 }

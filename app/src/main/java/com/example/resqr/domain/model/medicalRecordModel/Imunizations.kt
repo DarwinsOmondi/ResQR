@@ -1,3 +1,8 @@
 package com.example.resqr.domain.model.medicalRecordModel
 
-data class Imunizations()
+import kotlinx.serialization.Serializable
+
+@Serializable
+data class Immunizations(
+    val name: String
+)

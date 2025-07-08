@@ -1,4 +1,4 @@
-package com.example.resqr.presentation.components.responder
+package com.example.resqr.presentation.components.victim
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -12,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextFieldDefaults
@@ -20,6 +21,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -29,6 +31,8 @@ fun AddableTextField(
     onValueChange: (String) -> Unit,
     onAdd: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -36,17 +40,20 @@ fun AddableTextField(
         OutlinedTextField(
             value = value,
             onValueChange = onValueChange,
-            label = { Text(label) },
+            label = { Text(label, color = colorScheme.onSurface) },
             modifier = Modifier.weight(1f),
             shape = RoundedCornerShape(10.dp),
             maxLines = 1,
             colors = TextFieldDefaults.colors(
-                focusedContainerColor = Color.White,
-                unfocusedContainerColor = Color.White,
-                focusedIndicatorColor = Color(0xFF6B48FF),
-                unfocusedIndicatorColor = Color.Gray,
-                focusedTextColor = Color.Black,
-                unfocusedTextColor = Color.Black,
+                focusedContainerColor = colorScheme.surface,
+                unfocusedContainerColor = colorScheme.surface,
+                focusedIndicatorColor = colorScheme.primary,
+                unfocusedIndicatorColor = colorScheme.outline,
+                focusedTextColor = colorScheme.onSurface,
+                unfocusedTextColor = colorScheme.onSurface,
+                focusedLabelColor = colorScheme.onSurface,
+                unfocusedLabelColor = colorScheme.onSurface,
+                cursorColor = colorScheme.primary
             )
         )
         Spacer(modifier = Modifier.width(8.dp))
@@ -54,16 +61,27 @@ fun AddableTextField(
             modifier = Modifier
                 .size(48.dp)
                 .clip(RoundedCornerShape(12.dp))
-                .background(Color(0xFF1976D2).copy(alpha = 0.1f))
+                .background(colorScheme.primary.copy(alpha = 0.1f))
                 .clickable { onAdd() },
             contentAlignment = Alignment.Center
         ) {
             Icon(
                 imageVector = Icons.Default.Add,
                 contentDescription = "Add",
-                tint = Color(0xFF1976D2),
+                tint = colorScheme.primary,
                 modifier = Modifier.size(24.dp)
             )
         }
     }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun AddableTextFieldPreview() {
+    AddableTextField(
+        label = "Add Allergy",
+        value = "",
+        onValueChange = {},
+        onAdd = {}
+    )
 }

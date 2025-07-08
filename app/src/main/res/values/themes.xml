@@ -1,5 +1,20 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.ResQR" parent="android:Theme.Material.Light.NoActionBar" />
+    <!-- Main app theme -->
+    <style name="Theme.ResQR" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- ✅ Use a color here instead of drawable -->
+        <item name="android:colorBackground">@color/background</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
+    <!-- Splash theme -->
+    <style name="Theme.ResQR.Splash" parent="android:Theme.Material.Light.NoActionBar">
+        <!-- ✅ splash drawable used for window background only -->
+        <item name="android:windowBackground">@drawable/splash_screen</item>
+        <item name="android:windowNoTitle">true</item>
+        <item name="android:windowFullscreen">true</item>
+    </style>
+
 </resources>

@@ -1,4 +1,7 @@
 package com.example.resqr.domain.usecase.medical
 
-class DeleteMedicalDataUseCase {
+import com.example.resqr.domain.repository.medicalRepository.MedicalRepository
+
+class DeleteMedicalDataUseCase(private val medicalRepository: MedicalRepository) {
+     operator fun invoke(id: Int) = medicalRepository.deleteMedicalData(id = id)
 }

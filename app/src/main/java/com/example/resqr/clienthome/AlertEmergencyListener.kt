@@ -8,8 +8,18 @@ import android.speech.RecognizerIntent
 import android.speech.SpeechRecognizer
 import android.util.Log
 import java.util.Locale
+import android.media.AudioManager
 
 class AlertEmergencyListener(val context: Context) {
+
+    private fun muteBeepSounds(mute: Boolean) {
+        val audioManager = context.getSystemService(Context.AUDIO_SERVICE) as AudioManager
+        audioManager.adjustStreamVolume(
+            AudioManager.STREAM_MUSIC,
+            if (mute) AudioManager.ADJUST_MUTE else AudioManager.ADJUST_UNMUTE,
+            0
+        )
+    }
 
     private val speechRecognizer = SpeechRecognizer.createSpeechRecognizer(context)
     private val speechIntent = Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH).apply {
@@ -37,14 +47,16 @@ class AlertEmergencyListener(val context: Context) {
             }
 
             override fun onEndOfSpeech() {
-
+                muteBeepSounds(false)
             }
 
             override fun onError(error: Int) {
+                muteBeepSounds(true)
                 speechRecognizer.startListening(speechIntent)
             }
 
             override fun onResults(results: Bundle?) {
+                muteBeepSounds(true)
                 val matches = results?.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION)
                 Log.d("matches", matches.toString())
                 matches?.let {

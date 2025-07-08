@@ -12,6 +12,11 @@ val Black = Color(0xFF121212)
 val GrayBackground = Color(0xFFFAFAFA)
 val DarkGrayText = Color(0xFF333333)
 
+val splashScreenPrimary = Color(0xFF0118D8)
+val splashScreenText = Color(0xFFE9DFC3)
+val splashScreenSecondary = Color(0xFFFFF8F8)
+
+
 // Gradient for Sign In / Sign Up
 val GradientStart = Color(0xFFFF512F) // Red-Orange
 val GradientEnd = Color(0xFFDD2476)   // Deep Magenta

@@ -1,8 +1,8 @@
 package com.example.resqr.domain.model.authModel
 
-sealed class AuthResults {
-    object Uninitialized : AuthResults()
-    object Loading : AuthResults()
-    data class GetAuthUser(val user: User?) : AuthResults()
-    data class AuthError(val message: String) : AuthResults()
+sealed class AuthResponse {
+    object Uninitialized : AuthResponse()
+    object Loading : AuthResponse()
+    data class GetAuthUser(val user: User?) : AuthResponse()
+    data class AuthError(val message: String) : AuthResponse()
 }
