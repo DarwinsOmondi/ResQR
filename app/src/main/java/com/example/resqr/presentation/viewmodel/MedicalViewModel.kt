@@ -206,7 +206,7 @@ class MedicalViewModel(private val medicalUseCases: MedicalUseCases) : ViewModel
         _emergencyContactName.value =
             medicalData.medicalData.emergencyContact.firstOrNull()?.name ?: ""
         _emergencyContactPhone.value =
-            medicalData.medicalData.emergencyContact.firstOrNull()?.phone_number ?: ""
+            medicalData.medicalData.emergencyContact.firstOrNull()?.phoneNumber ?: ""
         _allergies.value = medicalData.medicalData.allergies.map { it.substance }
         _medications.value = medicalData.medicalData.medications.map { it.name }
         _medicalConditions.value = medicalData.medicalData.conditions.map { it.condition }

@@ -17,7 +17,7 @@ class UserRepositoryImpl(private val supabaseClient: SupabaseClient) : UserRepos
             emit(UserResponse.GetUser(user))
         } catch (e: Exception) {
             Log.e("UserRepositoryImpl", "insertUser: ${e.message}")
-            emit(UserResponse.UserError(mapErrorMessage(e.message)))
+            emit(UserResponse.UserError(userFriendlyErrorMessage(e.message)))
         }
     }
 
@@ -28,7 +28,7 @@ class UserRepositoryImpl(private val supabaseClient: SupabaseClient) : UserRepos
             emit(UserResponse.GetUser(user))
         } catch (e: Exception) {
             Log.e("UserRepositoryImpl", "insertUser: ${e.message}")
-            emit(UserResponse.UserError(mapErrorMessage(e.message)))
+            emit(UserResponse.UserError(userFriendlyErrorMessage(e.message)))
         }
     }
 
@@ -42,7 +42,7 @@ class UserRepositoryImpl(private val supabaseClient: SupabaseClient) : UserRepos
             }
         } catch (e: Exception) {
             Log.e("UserRepositoryImpl", "insertUser: ${e.message}")
-            emit(UserResponse.UserError(mapErrorMessage(e.message)))
+            emit(UserResponse.UserError(userFriendlyErrorMessage(e.message)))
         }
     }
 
@@ -57,7 +57,7 @@ class UserRepositoryImpl(private val supabaseClient: SupabaseClient) : UserRepos
             emit(UserResponse.GetUser(null))
         } catch (e: Exception) {
             Log.e("UserRepositoryImpl", "insertUser: ${e.message}")
-            emit(UserResponse.UserError(mapErrorMessage(e.message)))
+            emit(UserResponse.UserError(userFriendlyErrorMessage(e.message)))
         }
     }
 }

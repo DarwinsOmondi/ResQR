@@ -1,9 +1,14 @@
 package com.example.resqr.di
 
 import com.example.resqr.BuildConfig
+import com.example.resqr.data.repository.AlertRepositoryImpl
 import com.example.resqr.data.repository.AuthRepositoryImpl
 import com.example.resqr.data.repository.MedicalRepositoryImpl
 import com.example.resqr.data.repository.UserRepositoryImpl
+import com.example.resqr.domain.usecase.alert.AlertUseCase
+import com.example.resqr.domain.usecase.alert.GetAlertUseCase
+import com.example.resqr.domain.usecase.alert.SendAlertUseCase
+import com.example.resqr.domain.usecase.alert.UpdateAlertUseCase
 import com.example.resqr.domain.usecase.auth.GetCurrentUserUseCase
 import com.example.resqr.domain.usecase.auth.SignInUseCase
 import com.example.resqr.domain.usecase.auth.SignUpUseCase
@@ -18,6 +23,7 @@ import com.example.resqr.domain.usecase.user.GetUserUseCase
 import com.example.resqr.domain.usecase.user.InsertUserUseCase
 import com.example.resqr.domain.usecase.user.UpdateUserUseCase
 import com.example.resqr.domain.usecase.user.UserUseCase
+import com.example.resqr.presentation.viewmodel.AlertViewModel
 import com.example.resqr.presentation.viewmodel.AuthViewModel
 import com.example.resqr.presentation.viewmodel.MedicalViewModel
 import com.example.resqr.presentation.viewmodel.UserViewModel
@@ -52,6 +58,10 @@ object AppModule {
         UserRepositoryImpl(supabaseClient)
     }
 
+    val alertRepositoryImpl by lazy {
+        AlertRepositoryImpl(supabaseClient)
+    }
+
     //USE CASES
     //Auth
     val signUpUseCase by lazy {
@@ -64,7 +74,7 @@ object AppModule {
         GetCurrentUserUseCase(authRepositoryImpl)
     }
 
-    //Medical
+    //MEDICAL USE CASES
     val insertMedicalDataUseCase by lazy {
         InsertMedicalDataUseCase(medicalRepositoryImpl)
     }
@@ -90,7 +100,7 @@ object AppModule {
         )
     }
 
-    //User
+    //USER USE CASES
     val insertUserUseCase by lazy {
         InsertUserUseCase(userRepositoryImpl)
     }
@@ -114,6 +124,25 @@ object AppModule {
     }
 
 
+    //ALERT USE CASES
+    val sendAlertUseCase by lazy {
+        SendAlertUseCase(alertRepositoryImpl)
+    }
+    val getAlertUseCase by lazy {
+        GetAlertUseCase(alertRepositoryImpl)
+    }
+    val updateAlertUseCase by lazy {
+        UpdateAlertUseCase(alertRepositoryImpl)
+    }
+    val alertUseCase by lazy {
+        AlertUseCase(
+            sendAlertUseCase = sendAlertUseCase,
+            getAlertUseCase = getAlertUseCase,
+            updateAlertUseCase = updateAlertUseCase
+        )
+    }
+
+
     //VIEW MODELS
     val authViewModel by lazy {
         AuthViewModel(signUpUseCase, signInUseCase, getCurrentUserUseCase)
@@ -124,5 +153,8 @@ object AppModule {
 
     val userViewModel by lazy {
         UserViewModel(userUseCase)
+    }
+    val alertViewModel by lazy {
+        AlertViewModel(alertUseCase)
     }
 }

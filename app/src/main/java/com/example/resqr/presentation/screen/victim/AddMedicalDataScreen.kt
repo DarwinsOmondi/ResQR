@@ -58,6 +58,7 @@ import androidx.compose.ui.unit.dp
 import com.example.resqr.di.AppModule
 import com.example.resqr.domain.model.authModel.User
 import com.example.resqr.domain.model.medicalRecordModel.Allergy
+import com.example.resqr.domain.model.medicalRecordModel.EmergencyContact
 import com.example.resqr.domain.model.medicalRecordModel.Immunizations
 import com.example.resqr.domain.model.medicalRecordModel.MedicalConditions
 import com.example.resqr.domain.model.medicalRecordModel.MedicalResponse
@@ -65,7 +66,6 @@ import com.example.resqr.domain.model.medicalRecordModel.Medication
 import com.example.resqr.domain.model.medicalRecordModel.UserMedicalData
 import com.example.resqr.domain.model.medicalRecordModel.UserWithMedicalData
 import com.example.resqr.domain.model.usermodel.UserResponse
-import com.example.resqr.model.Emergency_contact
 import com.example.resqr.presentation.components.victim.AddableTextField
 import com.example.resqr.presentation.components.victim.ConfirmDeleteDialog
 import com.example.resqr.presentation.components.victim.LabeledTextField
@@ -124,6 +124,16 @@ fun AddMedicalDataScreenContents(medicalViewModel: MedicalViewModel, userViewMod
                     coroutineScope.launch {
                         snackBarHostState.showSnackbar(
                             message = (medicalState as MedicalResponse.MedicalError).message,
+                            actionLabel = "Dismiss",
+                            duration = SnackbarDuration.Short
+                        )
+                    }
+                }
+
+                is MedicalResponse.MedicalSuccess -> {
+                    coroutineScope.launch {
+                        snackBarHostState.showSnackbar(
+                            message = (medicalState as MedicalResponse.MedicalSuccess).message,
                             actionLabel = "Dismiss",
                             duration = SnackbarDuration.Short
                         )
@@ -334,7 +344,7 @@ fun AddMedicalDataScreenContents(medicalViewModel: MedicalViewModel, userViewMod
                     conditions = medicalConditions.map { MedicalConditions(it) },
                     immunizations = immunizations.map { Immunizations(it) },
                     emergencyContact = listOf(
-                        Emergency_contact(
+                        EmergencyContact(
                             emergencyContactName,
                             emergencyContactPhone
                         )

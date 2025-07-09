@@ -11,5 +11,5 @@ data class UserMedicalData(
     val medications: List<Medication>,
     val conditions: List<MedicalConditions>,
     val immunizations: List<Immunizations>,
-    val emergencyContact: List<Emergency_contact>
+    val emergencyContact: List<EmergencyContact>
 )

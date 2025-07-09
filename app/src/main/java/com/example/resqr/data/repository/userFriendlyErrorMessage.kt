@@ -1,7 +1,7 @@
 package com.example.resqr.data.repository
 
 
-fun mapErrorMessage(message: String?): String {
+fun userFriendlyErrorMessage(message: String?): String {
     return when {
         message == null -> "unknown error occurred"
         message.contains("unauthorized", ignoreCase = true) ->

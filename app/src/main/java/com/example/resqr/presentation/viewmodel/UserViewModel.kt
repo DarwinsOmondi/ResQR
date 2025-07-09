@@ -14,6 +14,13 @@ class UserViewModel(private val userUseCase: UserUseCase) : ViewModel() {
     private val _userState = MutableStateFlow<UserResponse>(UserResponse.Uninitialized)
     val userState: StateFlow<UserResponse> = _userState
 
+    private val _showAlertDialog = MutableStateFlow(false)
+    val showAlert: StateFlow<Boolean> = _showAlertDialog
+
+    fun toggleAlertDialog() {
+        _showAlertDialog.value = !_showAlertDialog.value
+    }
+
 
     fun insertUser(user: User) {
         viewModelScope.launch {

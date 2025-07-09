@@ -19,9 +19,10 @@ class MedicalRepositoryImpl(
             try {
                 supabaseClient.postgrest["userMedicalData"].insert(userWithMedicalData)
                 emit(MedicalResponse.GetMedicalData(userWithMedicalData))
+                emit(MedicalResponse.MedicalSuccess("Medical data added successfully"))
             } catch (e: Exception) {
                 Log.e("MedicalRepositoryImpl", "Error inserting medical data", e)
-                emit(MedicalResponse.MedicalError(mapErrorMessage(e.message)))
+                emit(MedicalResponse.MedicalError(userFriendlyErrorMessage(e.message)))
             }
         }
 
@@ -33,7 +34,7 @@ class MedicalRepositoryImpl(
             emit(MedicalResponse.GetMedicalData(result.firstOrNull()))
         } catch (e: Exception) {
             Log.e("MedicalRepositoryImpl", "Error getting medical data", e)
-            emit(MedicalResponse.MedicalError(mapErrorMessage(e.message)))
+            emit(MedicalResponse.MedicalError(userFriendlyErrorMessage(e.message)))
         }
     }
 
@@ -47,10 +48,11 @@ class MedicalRepositoryImpl(
                             eq("id", userWithMedicalData.id)
                         }
                     }
+                emit(MedicalResponse.MedicalSuccess("Medical data updated successfully"))
                 emit(MedicalResponse.GetMedicalData(userWithMedicalData))
             } catch (e: Exception) {
                 Log.e("MedicalRepositoryImpl", "Error updating medical data", e)
-                emit(MedicalResponse.MedicalError(mapErrorMessage(e.message)))
+                emit(MedicalResponse.MedicalError(userFriendlyErrorMessage(e.message)))
             }
         }
 
@@ -62,10 +64,11 @@ class MedicalRepositoryImpl(
                     eq("userId", id)
                 }
             }
+            emit(MedicalResponse.MedicalSuccess("Medical data deleted successfully"))
             emit(MedicalResponse.GetMedicalData(null))
         } catch (e: Exception) {
             Log.e("MedicalRepositoryImpl", "Error deleting medical data", e)
-            emit(MedicalResponse.MedicalError(mapErrorMessage(e.message)))
+            emit(MedicalResponse.MedicalError(userFriendlyErrorMessage(e.message)))
         }
     }
 
@@ -81,7 +84,7 @@ class MedicalRepositoryImpl(
             emit(MedicalResponse.GetMedicalData(result))
         } catch (e: Exception) {
             Log.e("MedicalRepositoryImpl", "Error getting current user medical data", e)
-            emit(MedicalResponse.MedicalError(mapErrorMessage(e.message)))
+            emit(MedicalResponse.MedicalError(userFriendlyErrorMessage(e.message)))
         }
     }
 }

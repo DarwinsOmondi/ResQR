@@ -5,4 +5,5 @@ sealed class MedicalResponse {
     object Loading : MedicalResponse()
     data class GetMedicalData(val medicalData: UserWithMedicalData?) : MedicalResponse()
     data class MedicalError(val message: String) : MedicalResponse()
+    data class MedicalSuccess(val message: String) : MedicalResponse()
 }

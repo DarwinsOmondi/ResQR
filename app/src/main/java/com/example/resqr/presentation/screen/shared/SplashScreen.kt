@@ -44,6 +44,7 @@ import com.example.resqr.domain.model.authModel.AuthResponse
 @Composable
 fun SplashScreen(navController: NavController) {
     val authViewModel = AppModule.authViewModel
+    val medicalViewModel = AppModule.medicalViewModel
     val authUiState = authViewModel.authState.collectAsState()
     LaunchedEffect(Unit) {
 
