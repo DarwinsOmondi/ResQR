@@ -56,7 +56,7 @@ class MedicalRepositoryImpl(
             }
         }
 
-    override fun deleteMedicalData(id: Int): Flow<MedicalResponse> = flow {
+    override fun deleteMedicalData(id: String): Flow<MedicalResponse> = flow {
         emit(MedicalResponse.Loading)
         try {
             supabaseClient.postgrest["userMedicalData"].delete {

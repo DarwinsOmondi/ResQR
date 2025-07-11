@@ -25,15 +25,14 @@ import com.example.resqr.responderhome.QRScannerScreen
 import com.example.resqr.responderhome.ResponderHomeUi
 import com.example.resqr.signin.SignInScreen
 import com.example.resqr.ui.theme.ResQRTheme
-import com.example.resqr.utils.supabaseClient
 import com.google.zxing.integration.android.IntentResult
 import androidx.compose.runtime.State
 import com.example.resqr.presentation.screen.auth.LogIn
 import com.example.resqr.presentation.screen.auth.SignUp
+import com.example.resqr.presentation.screen.qr.QRScreen
 import com.example.resqr.presentation.screen.responder.ResponderHomeScreen
 import com.example.resqr.presentation.screen.shared.SplashScreen
 import com.example.resqr.presentation.screen.victim.AddMedicalDataScreen
-import com.example.resqr.presentation.screen.victim.AddMedicalDataScreenContents
 import com.example.resqr.presentation.screen.victim.VictimHomeScreen
 import com.google.zxing.integration.android.IntentIntegrator
 
@@ -145,6 +144,9 @@ fun ResQR(
         }
         composable("add_medical_data") {
             AddMedicalDataScreen()
+        }
+        composable("show_qr") {
+            QRScreen()
         }
     }
 }

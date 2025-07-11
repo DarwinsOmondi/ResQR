@@ -1,7 +1,9 @@
 package com.example.resqr.presentation.screen.victim
 
+import androidx.compose.foundation.ScrollState
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.ExperimentalLayoutApi
 import androidx.compose.foundation.layout.FlowRow
@@ -40,7 +42,6 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -54,6 +55,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import com.example.resqr.di.AppModule
 import com.example.resqr.domain.model.authModel.User
@@ -80,82 +82,176 @@ import kotlinx.coroutines.launch
 fun AddMedicalDataScreen() {
     val medicalViewModel: MedicalViewModel = AppModule.medicalViewModel
     val userViewModel: UserViewModel = AppModule.userViewModel
-    AddMedicalDataScreenContents(medicalViewModel, userViewModel)
+
+    val scrollState = rememberScrollState()
+    val snackBarHostState = remember { SnackbarHostState() }
+    val coroutineScope = rememberCoroutineScope()
+
+    val medicalState by medicalViewModel.medicalState.collectAsState()
+    val userState by userViewModel.userState.collectAsState()
+
+    val user = remember { mutableStateOf<User?>(null) }
+
+    LaunchedEffect(medicalState) {
+        when (medicalState) {
+            is MedicalResponse.MedicalError -> {
+                coroutineScope.launch {
+                    snackBarHostState.showSnackbar(
+                        message = (medicalState as MedicalResponse.MedicalError).message,
+                        actionLabel = "Dismiss"
+                    )
+                }
+            }
+
+            is MedicalResponse.MedicalSuccess -> {
+                coroutineScope.launch {
+                    snackBarHostState.showSnackbar(
+                        message = (medicalState as MedicalResponse.MedicalSuccess).message,
+                        actionLabel = "Dismiss"
+                    )
+                }
+            }
+
+            else -> {}
+        }
+    }
+
+    val formState = MedicalFormState(
+        fullName = medicalViewModel.fullName.collectAsState().value,
+        age = medicalViewModel.age.collectAsState().value,
+        bloodType = medicalViewModel.bloodType.collectAsState().value,
+        emergencyContactName = medicalViewModel.emergencyContactName.collectAsState().value,
+        emergencyContactPhone = medicalViewModel.emergencyContactPhone.collectAsState().value,
+        allergyInput = medicalViewModel.newAllergy.collectAsState().value,
+        medicationInput = medicalViewModel.newMedication.collectAsState().value,
+        conditionInput = medicalViewModel.newMedicalCondition.collectAsState().value,
+        immunizationsInput = medicalViewModel.newImmunizations.collectAsState().value,
+        allergies = medicalViewModel.allergies.collectAsState().value,
+        medications = medicalViewModel.medications.collectAsState().value,
+        conditions = medicalViewModel.medicalConditions.collectAsState().value,
+        immunizations = medicalViewModel.immunizations.collectAsState().value
+    )
+
+    val formActions = MedicalFormActions(
+        onFullNameChange = { medicalViewModel.onFullNameChange(it) },
+        onAgeChange = { medicalViewModel.onAgeChange(it) },
+        onBloodTypeChange = { medicalViewModel.onBloodTypeChange(it) },
+        onEmergencyContactNameChange = { medicalViewModel.onEmergencyContactNameChange(it) },
+        onEmergencyContactPhoneChange = { medicalViewModel.onEmergencyContactPhoneChange(it) },
+        onAllergyInputChange = { medicalViewModel.onAllergyInputChange(it) },
+        onAddAllergy = { medicalViewModel.onAddAllergy() },
+        onRemoveAllergy = { medicalViewModel.onRemoveAllergy(it) },
+        onMedicationInputChange = { medicalViewModel.onMedicationInputChange(it) },
+        onAddMedication = { medicalViewModel.onAddMedication() },
+        onRemoveMedication = { medicalViewModel.onRemoveMedication(it) },
+        onConditionChange = { medicalViewModel.onMedicalConditionChange(it) },
+        onAddCondition = { medicalViewModel.onAddMedicalCondition() },
+        onRemoveCondition = { medicalViewModel.onRemoveMedicalCondition(it) },
+        onImmunizationChange = { medicalViewModel.onImmunizationChange(it) },
+        onAddImmunization = { medicalViewModel.onAddImmunizations() },
+        onRemoveImmunization = { medicalViewModel.onRemoveImmunization(it) },
+        onSubmit = {
+            user.value?.let { usr ->
+                val userMedicalData = UserMedicalData(
+                    age = formState.age,
+                    bloodType = formState.bloodType,
+                    allergies = formState.allergies.map(::Allergy),
+                    medications = formState.medications.map(::Medication),
+                    conditions = formState.conditions.map(::MedicalConditions),
+                    immunizations = formState.immunizations.map(::Immunizations),
+                    emergencyContact = listOf(
+                        EmergencyContact(
+                            formState.emergencyContactName,
+                            formState.emergencyContactPhone
+                        )
+                    )
+                )
+
+                val userWithMedicalData = UserWithMedicalData(
+                    user = usr,
+                    userId = usr.id,
+                    medicalData = userMedicalData
+                )
+
+                val existingMedicalData =
+                    (medicalState as? MedicalResponse.GetMedicalData)?.medicalData
+                val isExistingData = existingMedicalData != null
+
+                if (isExistingData) {
+                    medicalViewModel.updateMedicalData(userWithMedicalData)
+                } else {
+                    medicalViewModel.insertMedicalRecord(userWithMedicalData)
+                }
+            }
+        }
+    )
+
+    AddMedicalDataScreenContent(
+        scrollState = scrollState,
+        snackBarHostState = snackBarHostState,
+        medicalState = medicalState,
+        user = user.value,
+        formState = formState,
+        formActions = formActions,
+        deleteMedicalDataDialog = medicalViewModel.deleteMedicalDataDialog.collectAsState().value,
+        onToggleDeleteDialog = { medicalViewModel.toggleDeleteMedicalDataDialog() },
+        onDeleteMedicalData = { id -> medicalViewModel.deleteMedicalData(id) }
+    )
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalLayoutApi::class)
 @Composable
-fun AddMedicalDataScreenContents(medicalViewModel: MedicalViewModel, userViewModel: UserViewModel) {
+fun AddMedicalDataScreenContent(
+    scrollState: ScrollState,
+    snackBarHostState: SnackbarHostState,
+    user: User?,
+    medicalState: MedicalResponse,
+    formState: MedicalFormState,
+    formActions: MedicalFormActions,
+    deleteMedicalDataDialog: Boolean,
+    onToggleDeleteDialog: () -> Unit,
+    onDeleteMedicalData: (String) -> Unit
+) {
     VictimTheme {
-        val scrollState = rememberScrollState()
-        val snackBarHostState = remember { SnackbarHostState() }
-        val coroutineScope = rememberCoroutineScope()
-        val medicalState by medicalViewModel.medicalState.collectAsState()
-        val userState by userViewModel.userState.collectAsState()
-        val fullName by medicalViewModel.fullName.collectAsState()
-        val age by medicalViewModel.age.collectAsState()
-        val bloodType by medicalViewModel.bloodType.collectAsState()
-        val emergencyContactName by medicalViewModel.emergencyContactName.collectAsState()
-        val emergencyContactPhone by medicalViewModel.emergencyContactPhone.collectAsState()
-        val allergyInput by medicalViewModel.newAllergy.collectAsState()
-        val medicationInput by medicalViewModel.newMedication.collectAsState()
-        val conditionInput by medicalViewModel.newMedicalCondition.collectAsState()
-        val allergies by medicalViewModel.allergies.collectAsState()
-        val medications by medicalViewModel.medications.collectAsState()
-        val medicalConditions by medicalViewModel.medicalConditions.collectAsState()
-        val immunizations by medicalViewModel.immunizations.collectAsState()
-        val immunizationsInput by medicalViewModel.newImmunizations.collectAsState()
-        val deleteMedicalDataDialog by medicalViewModel.deleteMedicalDataDialog.collectAsState()
-        val user = remember { mutableStateOf<User?>(null) }
-        LaunchedEffect(Unit) {
-            when (userState) {
-                is UserResponse.GetUser -> {
-                    user.value = (userState as UserResponse.GetUser).user
-                    user.value?.id?.let { medicalViewModel.getCurrentUserMedicalDataUseCase(it) }
+        when (medicalState) {
+            is MedicalResponse.Loading -> {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
-
-                else -> {}
+                return@VictimTheme
             }
-        }
 
-        LaunchedEffect(medicalState) {
-            when (medicalState) {
-                is MedicalResponse.MedicalError -> {
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar(
-                            message = (medicalState as MedicalResponse.MedicalError).message,
-                            actionLabel = "Dismiss",
-                            duration = SnackbarDuration.Short
-                        )
-                    }
+            is MedicalResponse.MedicalError -> {
+                LaunchedEffect(snackBarHostState) {
+                    snackBarHostState.showSnackbar(medicalState.message)
                 }
+            }
 
-                is MedicalResponse.MedicalSuccess -> {
-                    coroutineScope.launch {
-                        snackBarHostState.showSnackbar(
-                            message = (medicalState as MedicalResponse.MedicalSuccess).message,
-                            actionLabel = "Dismiss",
-                            duration = SnackbarDuration.Short
-                        )
-                    }
+            is MedicalResponse.MedicalSuccess -> {
+                LaunchedEffect(snackBarHostState) {
+                    snackBarHostState.showSnackbar(medicalState.message)
                 }
+            }
 
-                else -> {}
+            MedicalResponse.Uninitialized,
+            is MedicalResponse.GetMedicalData -> {
+                // Continue to render the form normally
             }
         }
 
         val listOfBloodTypes = listOf("A+", "A-", "B+", "B-", "AB+", "AB-", "O+", "O-")
         val isExistingData =
-            medicalState is MedicalResponse.GetMedicalData && (medicalState as MedicalResponse.GetMedicalData).medicalData != null
+            medicalState is MedicalResponse.GetMedicalData && medicalState.medicalData != null
 
         Scaffold(
             modifier = Modifier.fillMaxSize(),
             containerColor = MaterialTheme.colorScheme.background,
             topBar = {
                 TopAppBar(
-                    navigationIcon = {
-                        RoundedIcon(Icons.Default.Person, "Person icon")
-                    },
                     title = {
                         Text(
                             "Medical Profile",
@@ -163,25 +259,24 @@ fun AddMedicalDataScreenContents(medicalViewModel: MedicalViewModel, userViewMod
                             modifier = Modifier.padding(start = 16.dp)
                         )
                     },
+                    navigationIcon = {
+                        RoundedIcon(Icons.Default.Person, "Person")
+                    },
                     actions = {
                         Icon(
                             Icons.Default.DeleteForever,
-                            contentDescription = "Delete forever",
+                            contentDescription = "Delete",
                             tint = MaterialTheme.colorScheme.primary,
                             modifier = Modifier
                                 .size(24.dp)
-                                .clickable {
-                                    medicalViewModel.toggleDeleteMedicalDataDialog()
-                                }
+                                .clickable { onToggleDeleteDialog() }
                         )
                         if (deleteMedicalDataDialog) {
                             ConfirmDeleteDialog(
                                 onConfirm = {
-                                    medicalViewModel.deleteMedicalData(user.value!!.id)
+                                    user?.id?.let { id -> onDeleteMedicalData(id.toString()) }
                                 },
-                                onDismiss = {
-                                    medicalViewModel.toggleDeleteMedicalDataDialog()
-                                }
+                                onDismiss = onToggleDeleteDialog
                             )
                         }
                     },
@@ -191,42 +286,40 @@ fun AddMedicalDataScreenContents(medicalViewModel: MedicalViewModel, userViewMod
         ) { innerPadding ->
             Column(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
+                    .padding(innerPadding)
                     .padding(16.dp)
-                    .padding(innerPadding),
+                    .verticalScroll(scrollState),
                 verticalArrangement = Arrangement.spacedBy(20.dp)
             ) {
                 SectionHeader(
                     "Basic Information",
-                    icon = Icons.Default.Person,
-                    tint = MaterialTheme.colorScheme.primary
+                    Icons.Default.Person,
+                    MaterialTheme.colorScheme.primary
                 )
-
                 LabeledTextField(
                     "Full Name",
-                    fullName,
-                    medicalViewModel::onFullNameChange,
+                    formState.fullName,
+                    formActions.onFullNameChange,
                     Icons.Default.Person
                 )
                 LabeledTextField(
                     "Age",
-                    age,
-                    medicalViewModel::onAgeChange,
+                    formState.age,
+                    formActions.onAgeChange,
                     Icons.Default.CalendarMonth
                 )
 
                 SectionHeader(
                     "Blood Type",
                     Icons.Default.Bloodtype,
-                    tint = MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.primary
                 )
                 LazyRow(modifier = Modifier.fillMaxWidth()) {
                     items(listOfBloodTypes) { type ->
-                        val isSelected = type == bloodType
+                        val isSelected = type == formState.bloodType
                         Card(
+                            onClick = { formActions.onBloodTypeChange(type) },
                             modifier = Modifier.padding(end = 8.dp),
-                            onClick = { medicalViewModel.onBloodTypeChange(type) },
                             colors = CardDefaults.cardColors(
                                 containerColor = if (isSelected) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.surface,
                                 contentColor = if (isSelected) MaterialTheme.colorScheme.onPrimary else MaterialTheme.colorScheme.onSurface
@@ -245,131 +338,98 @@ fun AddMedicalDataScreenContents(medicalViewModel: MedicalViewModel, userViewMod
                 SectionHeader(
                     "Emergency Contact",
                     Icons.Default.Phone,
-                    tint = MaterialTheme.colorScheme.secondary
+                    MaterialTheme.colorScheme.secondary
                 )
                 LabeledTextField(
                     "Contact Name",
-                    emergencyContactName,
-                    medicalViewModel::onEmergencyContactNameChange,
+                    formState.emergencyContactName,
+                    formActions.onEmergencyContactNameChange,
                     Icons.Default.People
                 )
                 LabeledTextField(
                     "Phone Number",
-                    emergencyContactPhone,
-                    medicalViewModel::onEmergencyContactPhoneChange,
+                    formState.emergencyContactPhone,
+                    formActions.onEmergencyContactPhoneChange,
                     Icons.Default.Phone
                 )
+
                 SectionHeader(
                     "Immunizations",
                     Icons.Default.Vaccines,
-                    tint = MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.primary
                 )
                 AddableTextField(
-                    "Add immunizations",
-                    immunizationsInput,
-                    medicalViewModel::onImmunizationChange,
-                    medicalViewModel::onAddImmunizations
+                    "Add Immunizations",
+                    formState.immunizationsInput,
+                    formActions.onImmunizationChange,
+                    formActions.onAddImmunization
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    immunizations.forEach { imm ->
-                        AssistChip(onClick = {
-                            medicalViewModel.onRemoveImmunization(imm)
-                        }, label = { Text(imm) })
+                    formState.immunizations.forEach { imm ->
+                        AssistChip(
+                            onClick = { formActions.onRemoveImmunization(imm) },
+                            label = { Text(imm) })
                     }
                 }
-                SectionHeader(
-                    "Allergies",
-                    Icons.Default.Info,
-                    tint = MaterialTheme.colorScheme.tertiary
-                )
+
+                SectionHeader("Allergies", Icons.Default.Info, MaterialTheme.colorScheme.tertiary)
                 AddableTextField(
                     "Add Allergy",
-                    allergyInput,
-                    medicalViewModel::onAllergyInputChange,
-                    medicalViewModel::onAddAllergy
+                    formState.allergyInput,
+                    formActions.onAllergyInputChange,
+                    formActions.onAddAllergy
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    allergies.forEach { allergy ->
-                        AssistChip(onClick = {
-                            medicalViewModel.onRemoveAllergy(allergy)
-                        }, label = { Text(allergy) })
+                    formState.allergies.forEach { allergy ->
+                        AssistChip(
+                            onClick = { formActions.onRemoveAllergy(allergy) },
+                            label = { Text(allergy) })
                     }
                 }
 
                 SectionHeader(
                     "Current Medications",
                     Icons.Default.MedicalServices,
-                    tint = MaterialTheme.colorScheme.secondary
+                    MaterialTheme.colorScheme.secondary
                 )
                 AddableTextField(
                     "Add Medication",
-                    medicationInput,
-                    medicalViewModel::onMedicationInputChange,
-                    medicalViewModel::onAddMedication
+                    formState.medicationInput,
+                    formActions.onMedicationInputChange,
+                    formActions.onAddMedication
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    medications.forEach { med ->
-                        AssistChip(onClick = {
-                            medicalViewModel.onRemoveMedication(med)
-                        }, label = { Text(med) })
+                    formState.medications.forEach { med ->
+                        AssistChip(
+                            onClick = { formActions.onRemoveMedication(med) },
+                            label = { Text(med) })
                     }
                 }
 
                 SectionHeader(
                     "Medical Conditions",
                     Icons.Default.FavoriteBorder,
-                    tint = MaterialTheme.colorScheme.primary
+                    MaterialTheme.colorScheme.primary
                 )
                 AddableTextField(
-                    "Add medical condition",
-                    conditionInput,
-                    medicalViewModel::onMedicalConditionChange,
-                    medicalViewModel::onAddMedicalCondition
+                    "Add Condition",
+                    formState.conditionInput,
+                    formActions.onConditionChange,
+                    formActions.onAddCondition
                 )
                 FlowRow(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                    medicalConditions.forEach { cond ->
-                        AssistChip(onClick = {
-                            medicalViewModel.onRemoveMedicalCondition(cond)
-                        }, label = { Text(cond) })
+                    formState.conditions.forEach { cond ->
+                        AssistChip(
+                            onClick = { formActions.onRemoveCondition(cond) },
+                            label = { Text(cond) })
                     }
                 }
-                val isUserLoaded = user.value != null
-                val canSave =
-                    isUserLoaded && fullName.isNotBlank() && age.isNotBlank() && bloodType.isNotBlank()
-                val userMedicalData = UserMedicalData(
-                    age = age,
-                    bloodType = bloodType,
-                    allergies = allergies.map { Allergy(it) },
-                    medications = medications.map { Medication(it) },
-                    conditions = medicalConditions.map { MedicalConditions(it) },
-                    immunizations = immunizations.map { Immunizations(it) },
-                    emergencyContact = listOf(
-                        EmergencyContact(
-                            emergencyContactName,
-                            emergencyContactPhone
-                        )
-                    )
-                )
 
-                val userWithMedicalData = user.value?.let {
-                    UserWithMedicalData(
-                        user = it,
-                        userId = user.value!!.id,
-                        medicalData = userMedicalData
-                    )
-                }
+                val canSave = user != null && formState.fullName.isNotBlank() &&
+                        formState.age.isNotBlank() && formState.bloodType.isNotBlank()
+
                 Button(
-                    onClick = {
-                        if (userWithMedicalData != null && canSave) {
-                            if (isExistingData) {
-                                medicalViewModel.updateMedicalData(userWithMedicalData)
-                            } else {
-                                medicalViewModel.insertMedicalRecord(userWithMedicalData)
-                            }
-                        } else {
-                            println("User or medical data is null")
-                        }
-                    },
+                    onClick = { if (canSave) formActions.onSubmit() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(56.dp),
@@ -381,9 +441,9 @@ fun AddMedicalDataScreenContents(medicalViewModel: MedicalViewModel, userViewMod
                 ) {
                     if (medicalState is MedicalResponse.Loading) {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
                             CircularProgressIndicator(color = MaterialTheme.colorScheme.onPrimary)
                             Spacer(modifier = Modifier.width(8.dp))
@@ -391,11 +451,12 @@ fun AddMedicalDataScreenContents(medicalViewModel: MedicalViewModel, userViewMod
                         }
                     } else {
                         Row(
-                            modifier = Modifier.fillMaxWidth(),
                             verticalAlignment = Alignment.CenterVertically,
-                            horizontalArrangement = Arrangement.Center
+                            horizontalArrangement = Arrangement.Center,
+                            modifier = Modifier.fillMaxWidth()
                         ) {
-                            Icon(Icons.Default.Save, contentDescription = "Save medical data")
+                            Icon(Icons.Default.Save, contentDescription = "Save")
+                            Spacer(modifier = Modifier.width(8.dp))
                             Text(
                                 if (isExistingData) "Update" else "Save",
                                 style = MaterialTheme.typography.bodyLarge
@@ -407,3 +468,67 @@ fun AddMedicalDataScreenContents(medicalViewModel: MedicalViewModel, userViewMod
         }
     }
 }
+
+
+@Preview(showBackground = true)
+@Composable
+fun AddMedicalDataScreenPreview() {
+    val dummyUser = User(
+        id = 1,
+        fullName = "Jane Doe",
+        email = "jane@example.com",
+        phoneNumber = "0712345678",
+    )
+
+    val dummyState = MedicalFormState(
+        fullName = "Jane Doe",
+        age = "30",
+        bloodType = "O+",
+        emergencyContactName = "John Doe",
+        emergencyContactPhone = "0798765432",
+        allergies = listOf("Peanuts", "Dust"),
+        medications = listOf("Paracetamol"),
+        conditions = listOf("Asthma"),
+        immunizations = listOf("Covid-19", "Tetanus"),
+        allergyInput = "",
+        medicationInput = "",
+        conditionInput = "",
+        immunizationsInput = ""
+    )
+
+    val dummyActions = MedicalFormActions(
+        onFullNameChange = {},
+        onAgeChange = {},
+        onBloodTypeChange = {},
+        onEmergencyContactNameChange = {},
+        onEmergencyContactPhoneChange = {},
+        onAllergyInputChange = {},
+        onAddAllergy = {},
+        onRemoveAllergy = {},
+        onMedicationInputChange = {},
+        onAddMedication = {},
+        onRemoveMedication = {},
+        onConditionChange = {},
+        onAddCondition = {},
+        onRemoveCondition = {},
+        onImmunizationChange = {},
+        onAddImmunization = {},
+        onRemoveImmunization = {},
+        onSubmit = {},
+    )
+
+    VictimTheme {
+        AddMedicalDataScreenContent(
+            scrollState = rememberScrollState(),
+            snackBarHostState = remember { SnackbarHostState() },
+            user = dummyUser,
+            medicalState = MedicalResponse.Uninitialized,
+            formState = dummyState,
+            formActions = dummyActions,
+            deleteMedicalDataDialog = false,
+            onToggleDeleteDialog = {},
+            onDeleteMedicalData = {}
+        )
+    }
+}
+

@@ -8,6 +8,6 @@ interface MedicalRepository {
     fun insertMedicalData(userWithMedicalData: UserWithMedicalData): Flow<MedicalResponse>
     fun getMedicalData(): Flow<MedicalResponse>
     fun updateMedicalData(userWithMedicalData: UserWithMedicalData): Flow<MedicalResponse>
-    fun deleteMedicalData(id: Int): Flow<MedicalResponse>
+    fun deleteMedicalData(id: String): Flow<MedicalResponse>
     fun getCurrentUserMedicalData(id: Int): Flow<MedicalResponse>
 }

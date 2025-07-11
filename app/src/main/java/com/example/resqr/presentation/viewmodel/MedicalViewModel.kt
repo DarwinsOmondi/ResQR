@@ -181,7 +181,7 @@ class MedicalViewModel(private val medicalUseCases: MedicalUseCases) : ViewModel
         }
     }
 
-    fun deleteMedicalData(id: Int) {
+    fun deleteMedicalData(id: String) {
         viewModelScope.launch {
             _medicalState.value = MedicalResponse.Loading
             medicalUseCases.deleteMedicalData(id).collect { result ->
@@ -199,17 +199,19 @@ class MedicalViewModel(private val medicalUseCases: MedicalUseCases) : ViewModel
         }
     }
 
-    private fun populateFormFields(medicalData: UserWithMedicalData) {
-        _fullName.value = medicalData.user.fullName
-        _age.value = medicalData.medicalData.age
-        _bloodType.value = medicalData.medicalData.bloodType
-        _emergencyContactName.value =
-            medicalData.medicalData.emergencyContact.firstOrNull()?.name ?: ""
-        _emergencyContactPhone.value =
-            medicalData.medicalData.emergencyContact.firstOrNull()?.phoneNumber ?: ""
-        _allergies.value = medicalData.medicalData.allergies.map { it.substance }
-        _medications.value = medicalData.medicalData.medications.map { it.name }
-        _medicalConditions.value = medicalData.medicalData.conditions.map { it.condition }
-        _immunizations.value = medicalData.medicalData.immunizations.map { it.name }
+    fun populateFormFields(medicalData: UserWithMedicalData?) {
+        if (medicalData != null) {
+            _fullName.value = medicalData.user.fullName
+            _age.value = medicalData.medicalData.age
+            _bloodType.value = medicalData.medicalData.bloodType
+            _emergencyContactName.value =
+                medicalData.medicalData.emergencyContact.firstOrNull()?.name ?: ""
+            _emergencyContactPhone.value =
+                medicalData.medicalData.emergencyContact.firstOrNull()?.phoneNumber ?: ""
+            _allergies.value = medicalData.medicalData.allergies.map { it.substance }
+            _medications.value = medicalData.medicalData.medications.map { it.name }
+            _medicalConditions.value = medicalData.medicalData.conditions.map { it.condition }
+            _immunizations.value = medicalData.medicalData.immunizations.map { it.name }
+        }
     }
 }

@@ -1,7 +1,6 @@
 package com.example.resqr.presentation.screen.victim
 
 import android.location.Geocoder
-import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -18,24 +17,20 @@ import androidx.compose.material.icons.filled.WarningAmber
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
 import com.example.resqr.di.AppModule
-import com.example.resqr.domain.model.alertModel.Alert
-import com.example.resqr.domain.model.alertModel.AlertType
+import com.example.resqr.domain.model.authModel.User
 import com.example.resqr.domain.model.medicalRecordModel.EmergencyContact
 import com.example.resqr.domain.model.medicalRecordModel.MedicalResponse
+import com.example.resqr.domain.model.medicalRecordModel.UserWithMedicalData
 import com.example.resqr.domain.model.usermodel.UserResponse
 import com.example.resqr.presentation.components.both.ActionDisplayerCards
 import com.example.resqr.presentation.components.both.BottomNavBar
@@ -44,27 +39,18 @@ import com.example.resqr.presentation.components.victim.QuickActionCardVictim
 import com.example.resqr.presentation.components.victim.VoiceCommandsCard
 import com.example.resqr.presentation.viewmodel.AlertViewModel
 import com.example.resqr.presentation.viewmodel.MedicalViewModel
+import com.example.resqr.presentation.viewmodel.QrViewModel
 import com.example.resqr.presentation.viewmodel.UserViewModel
 import com.example.resqr.utils.LocationService
-import org.osmdroid.util.GeoPoint
-import kotlin.Int
 
 @Composable
 fun VictimHomeScreen(navController: NavController) {
+    val context = LocalContext.current
     val userViewModel: UserViewModel = AppModule.userViewModel
     val alertViewModel: AlertViewModel = AppModule.alertViewModel
     val medicalViewModel: MedicalViewModel = AppModule.medicalViewModel
-    VictimHomeScreenContent(userViewModel, alertViewModel, medicalViewModel, navController)
-}
+    val qrViewModel: QrViewModel = AppModule.qrViewModel
 
-@Composable
-fun VictimHomeScreenContent(
-    userViewModel: UserViewModel,
-    alertViewModel: AlertViewModel,
-    medicalViewModel: MedicalViewModel,
-    navController: NavController
-) {
-    val context = LocalContext.current
     val userState by userViewModel.userState.collectAsState()
     val alertState by alertViewModel.alertState.collectAsState()
     val medicalState by medicalViewModel.medicalState.collectAsState()
@@ -74,63 +60,86 @@ fun VictimHomeScreenContent(
     val hasStarted by alertViewModel.hasStarted.collectAsState()
     val longitude by alertViewModel.longitude.collectAsState()
     val latitude by alertViewModel.latitude.collectAsState()
-    var victimLocation by remember { mutableStateOf<String>("") }
-    val user = when (userState) {
-        is UserResponse.GetUser -> (userState as UserResponse.GetUser).user
-        else -> null
-    }
-    Log.e("UserHome", user.toString())
+    val victimLocation by alertViewModel.victimLocation.collectAsState()
 
-    val medicalData = when (medicalState) {
-        is MedicalResponse.GetMedicalData -> (medicalState as MedicalResponse.GetMedicalData).medicalData
-        else -> null
-    }
-    Log.e("MedicalDataHome", medicalData.toString())
-    val contact = medicalData?.medicalData?.emergencyContact?.firstOrNull()
-
+    var currentUser by remember { mutableStateOf<User?>(null) }
+    var userMedicalData by remember { mutableStateOf<UserWithMedicalData?>(null) }
+    val userContact = userMedicalData?.medicalData?.emergencyContact?.firstOrNull()
 
     LaunchedEffect(Unit) {
-        if (user != null) {
-            medicalViewModel.getCurrentUserMedicalDataUseCase(user.id)
-        }
         userViewModel.getUser()
-        val locationService = LocationService(context)
-        val currentLocation = locationService.getUserCurrentLocation()
-        if (currentLocation != null) {
-            alertViewModel.updateLocation(
-                lat = currentLocation.latitude,
-                lon = currentLocation.longitude
-            )
+    }
 
-            val decodedLocation = Geocoder(context).getFromLocation(
-                currentLocation.latitude,
-                currentLocation.longitude,
-                1
-            )
-            victimLocation =
-                decodedLocation?.getOrNull(0)?.getAddressLine(0)?.substringAfter(", ")?.trim()
-                    ?: "Unknown Location"
-            Log.e("DecodedLocation", victimLocation)
+    LaunchedEffect(userState) {
+        currentUser = (userState as? UserResponse.GetUser)?.user
+        currentUser?.let {
+            medicalViewModel.getCurrentUserMedicalDataUseCase(it.id)
         }
     }
+
+    LaunchedEffect(medicalState) {
+        userMedicalData = (medicalState as? MedicalResponse.GetMedicalData)?.medicalData
+        qrViewModel.populateUserWithMedicalData(userMedicalData)
+        medicalViewModel.populateFormFields(userMedicalData)
+    }
+
+    LaunchedEffect(Unit) {
+        val locationService = LocationService(context)
+        locationService.getUserCurrentLocation()?.let {
+            alertViewModel.updateLocation(it.latitude, it.longitude)
+            val decoded = Geocoder(context).getFromLocation(it.latitude, it.longitude, 1)
+            alertViewModel.updateVictimLocation(
+                decoded?.getOrNull(0)?.getAddressLine(0)?.substringAfter(", ")?.trim()
+                    ?: "Unknown Location"
+            )
+        }
+    }
+
     LaunchedEffect(countdownFinished) {
-        if (countdownFinished && user != null && medicalData != null && contact != null) {
-            Log.d("ALERT", "Triggering alert from ViewModel")
+        if (countdownFinished && currentUser != null && userMedicalData != null && userContact != null) {
             alertViewModel.triggerSendAlert(
-                user = user,
-                contact = EmergencyContact(contact.name, contact.phoneNumber),
+                user = currentUser!!,
+                contact = EmergencyContact(userContact.name, userContact.phoneNumber),
                 latitude = latitude.toString(),
                 longitude = longitude.toString()
             )
         }
     }
 
-
     LaunchedEffect(showAlertDialog) {
         if (showAlertDialog && !hasStarted) {
             alertViewModel.startCountdown()
         }
     }
+
+    VictimHomeScreenContent(
+        navController = navController,
+        userState = userState,
+        showAlertDialog = showAlertDialog,
+        timeLeft = timeLeft,
+        hasStarted = hasStarted,
+        countdownFinished = countdownFinished,
+        victimLocation = victimLocation,
+        onToggleDialog = userViewModel::toggleAlertDialog,
+        onStopCountdown = alertViewModel::stopCountdownEarly,
+        onStartCountdown = alertViewModel::startCountdown
+    )
+}
+
+
+@Composable
+fun VictimHomeScreenContent(
+    navController: NavController,
+    userState: UserResponse,
+    showAlertDialog: Boolean,
+    timeLeft: Int,
+    hasStarted: Boolean,
+    countdownFinished: Boolean,
+    victimLocation: String?,
+    onToggleDialog: () -> Unit,
+    onStopCountdown: () -> Unit,
+    onStartCountdown: () -> Unit,
+) {
     val actions = remember {
         listOf(
             Triple(Icons.Default.Person, "Medical Profile", "Medical Profile"),
@@ -139,9 +148,11 @@ fun VictimHomeScreenContent(
             Triple(Icons.Default.LocationOn, "Update Location", "Update Location")
         )
     }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        bottomBar = { BottomNavBar(navController) }) { innerPadding ->
+        bottomBar = { BottomNavBar(navController) }
+    ) { innerPadding ->
         Column(
             modifier = Modifier
                 .fillMaxSize()
@@ -166,7 +177,8 @@ fun VictimHomeScreenContent(
                 iconColor = Color.White,
                 cardColor = Color.Red,
                 onCardClick = {
-                    userViewModel.toggleAlertDialog()
+                    onToggleDialog()
+                    onStartCountdown()
                 }
             )
             Text(
@@ -184,53 +196,70 @@ fun VictimHomeScreenContent(
                 items(actions.size) { index ->
                     val action = actions[index]
                     QuickActionCardVictim(
-                        icon = actions[index].first,
-                        contentDescription = actions[index].second,
-                        title = actions[index].third,
+                        icon = action.first,
+                        contentDescription = action.second,
+                        title = action.third,
                         iconColor = Color(0xFF1976D2),
                         cardColor = Color.White,
                         onCardClick = {
                             when (action.third) {
                                 "Medical Profile" -> navController.navigate(Routes.MEDICAL_PROFILE)
-                                "Share QR Code" -> navController.navigate("share_qr")
-                                "Call 911" -> {
-                                    navController.navigate("call_911")
-                                }
-
-                                "Update Location" -> navController.navigate("update_location")
+                                "Share QR Code" -> navController.navigate(Routes.SHARE_QR)
+                                "Call 911" -> navController.navigate(Routes.CALL_911)
+                                "Update Location" -> navController.navigate(Routes.UPDATE_LOCATION)
                             }
                         }
                     )
                 }
             }
+
             VoiceCommandsCard(
                 onVoiceCommandClick = {}
             )
+
             EmergencyAlertDialogWrapper(
                 showDialog = showAlertDialog,
                 onDismissRequest = {
-                    alertViewModel.stopCountdownEarly()
-                    userViewModel.toggleAlertDialog()
+                    onStopCountdown()
+                    onToggleDialog()
                 },
                 onCall911 = {
-                    alertViewModel.stopCountdownEarly()
-                    userViewModel.toggleAlertDialog()
+                    onStopCountdown()
+                    onToggleDialog()
                     navController.navigate(Routes.CALL_911)
                 },
                 onCancelAlert = {
-                    alertViewModel.stopCountdownEarly()
-                    userViewModel.toggleAlertDialog()
+                    onStopCountdown()
+                    onToggleDialog()
                 },
                 remainingTime = timeLeft,
-                location = victimLocation
+                location = victimLocation ?: "Unknown Location"
             )
         }
     }
 }
 
+@Preview(showBackground = true)
+@Composable
+fun VictimHomeScreenContentPreview() {
+    VictimHomeScreenContent(
+        navController = rememberNavController(),
+        userState = UserResponse.Loading,
+        showAlertDialog = false,
+        timeLeft = 30,
+        hasStarted = false,
+        countdownFinished = false,
+        victimLocation = "Nairobi, Kenya",
+        onToggleDialog = {},
+        onStopCountdown = {},
+        onStartCountdown = {}
+    )
+}
+
+
 object Routes {
     const val MEDICAL_PROFILE = "add_medical_data"
-    const val SHARE_QR = "share_qr"
+    const val SHARE_QR = "show_qr"
     const val CALL_911 = "call_911"
     const val UPDATE_LOCATION = "update_location"
 }

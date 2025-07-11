@@ -24,6 +24,13 @@ class AlertViewModel(private val alertUseCase: AlertUseCase) : ViewModel() {
     private val _latitude = MutableStateFlow<Double?>(null)
     val latitude: StateFlow<Double?> = _latitude
 
+    private val _victimLocation = MutableStateFlow<String?>(null)
+    val victimLocation: StateFlow<String?> = _victimLocation
+
+    fun updateVictimLocation(location: String) {
+        _victimLocation.value = location
+    }
+
     fun updateLocation(lat: Double, lon: Double) {
         _latitude.value = lat
         _longitude.value = lon

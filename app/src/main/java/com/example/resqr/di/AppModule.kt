@@ -4,6 +4,7 @@ import com.example.resqr.BuildConfig
 import com.example.resqr.data.repository.AlertRepositoryImpl
 import com.example.resqr.data.repository.AuthRepositoryImpl
 import com.example.resqr.data.repository.MedicalRepositoryImpl
+import com.example.resqr.data.repository.QrRepositoryImpl
 import com.example.resqr.data.repository.UserRepositoryImpl
 import com.example.resqr.domain.usecase.alert.AlertUseCase
 import com.example.resqr.domain.usecase.alert.GetAlertUseCase
@@ -18,6 +19,7 @@ import com.example.resqr.domain.usecase.medical.GetMedicalDataUseCase
 import com.example.resqr.domain.usecase.medical.InsertMedicalDataUseCase
 import com.example.resqr.domain.usecase.medical.MedicalUseCases
 import com.example.resqr.domain.usecase.medical.UpdateMedicalDataUseCase
+import com.example.resqr.domain.usecase.qr.QrCodeUseCase
 import com.example.resqr.domain.usecase.user.DeleteUserUseCase
 import com.example.resqr.domain.usecase.user.GetUserUseCase
 import com.example.resqr.domain.usecase.user.InsertUserUseCase
@@ -26,6 +28,7 @@ import com.example.resqr.domain.usecase.user.UserUseCase
 import com.example.resqr.presentation.viewmodel.AlertViewModel
 import com.example.resqr.presentation.viewmodel.AuthViewModel
 import com.example.resqr.presentation.viewmodel.MedicalViewModel
+import com.example.resqr.presentation.viewmodel.QrViewModel
 import com.example.resqr.presentation.viewmodel.UserViewModel
 import io.github.jan.supabase.auth.Auth
 import io.github.jan.supabase.createSupabaseClient
@@ -60,6 +63,10 @@ object AppModule {
 
     val alertRepositoryImpl by lazy {
         AlertRepositoryImpl(supabaseClient)
+    }
+
+    val qrRepositoryImpl by lazy {
+        QrRepositoryImpl()
     }
 
     //USE CASES
@@ -142,6 +149,13 @@ object AppModule {
         )
     }
 
+    //QRCode UseCse
+    val qrCodeUseCase by lazy {
+        QrCodeUseCase(
+            qrCodeRepository = qrRepositoryImpl
+        )
+    }
+
 
     //VIEW MODELS
     val authViewModel by lazy {
@@ -156,5 +170,8 @@ object AppModule {
     }
     val alertViewModel by lazy {
         AlertViewModel(alertUseCase)
+    }
+    val qrViewModel by lazy {
+        QrViewModel(qrCodeUseCase)
     }
 }
