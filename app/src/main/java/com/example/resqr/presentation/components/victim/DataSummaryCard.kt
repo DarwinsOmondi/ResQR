@@ -12,6 +12,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -25,19 +26,24 @@ fun DataSummaryCard(
     medications: List<Medication>,
     emergencyContact: String
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp),
         shape = RoundedCornerShape(16.dp),
         elevation = CardDefaults.cardElevation(defaultElevation = 4.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surface,
+            contentColor = colorScheme.onSurface
+        )
     ) {
         Column(modifier = Modifier.padding(16.dp)) {
             Text(
                 text = "Medical Summary",
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.Black
+                color = colorScheme.onSurface
             )
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -51,14 +57,14 @@ fun DataSummaryCard(
             InfoRow(
                 icon = Icons.Default.Sick,
                 label = "Allergies",
-                value = if (allergies.isNotEmpty()) allergies.joinToString(", ") { it.substance } else "None"
+                value = allergies.joinToString(", ") { it.substance }.ifEmpty { "None" }
             )
             Spacer(modifier = Modifier.height(12.dp))
 
             InfoRow(
                 icon = Icons.Default.Vaccines,
                 label = "Medications",
-                value = if (medications.isNotEmpty()) medications.joinToString(", ") { it.name } else "None"
+                value = medications.joinToString(", ") { it.name }.ifEmpty { "None" }
             )
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -72,7 +78,13 @@ fun DataSummaryCard(
 }
 
 @Composable
-fun InfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String, value: String) {
+fun InfoRow(
+    icon: ImageVector,
+    label: String,
+    value: String
+) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Row(
         verticalAlignment = Alignment.CenterVertically,
         modifier = Modifier.fillMaxWidth()
@@ -80,25 +92,26 @@ fun InfoRow(icon: androidx.compose.ui.graphics.vector.ImageVector, label: String
         Icon(
             imageVector = icon,
             contentDescription = label,
-            tint = Color(0xFFD32F2F),
+            tint = colorScheme.error,
             modifier = Modifier.size(20.dp)
         )
         Spacer(modifier = Modifier.width(8.dp))
         Text(
             text = "$label:",
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.Black,
+            color = colorScheme.onSurface,
             modifier = Modifier.width(130.dp)
         )
         Text(
             text = value,
             style = MaterialTheme.typography.bodyMedium,
-            color = Color.DarkGray,
+            color = colorScheme.onSurfaceVariant,
             overflow = TextOverflow.Ellipsis,
             maxLines = 2
         )
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable

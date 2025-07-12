@@ -1,7 +1,11 @@
 package com.example.resqr.presentation.screen.qr
 
+import android.content.Intent
 import android.graphics.Bitmap
-import android.util.Log
+import android.os.Build
+import android.os.Environment
+import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
@@ -9,15 +13,17 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Close
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Save
 import androidx.compose.material.icons.filled.Share
@@ -25,8 +31,15 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -41,13 +54,12 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.platform.LocalConfiguration
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.core.content.FileProvider
 import com.example.resqr.di.AppModule
 import com.example.resqr.domain.model.authModel.User
 import com.example.resqr.domain.model.medicalRecordModel.Allergy
@@ -59,19 +71,32 @@ import com.example.resqr.domain.model.qrModel.QrResponse
 import com.example.resqr.presentation.components.victim.DataSummaryCard
 import com.example.resqr.presentation.components.victim.WarningBanner
 import androidx.core.graphics.createBitmap
+import androidx.navigation.NavController
 import com.example.resqr.domain.model.medicalRecordModel.Immunizations
 import com.example.resqr.domain.model.medicalRecordModel.MedicalConditions
+import com.example.resqr.presentation.components.sharedComponents.TopAppBar
+import com.example.resqr.utils.QrForegroundService
+import kotlinx.coroutines.launch
+import java.io.File
+import java.io.FileOutputStream
 
+@RequiresApi(Build.VERSION_CODES.O)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun QRScreen() {
+fun QRScreen(navController: NavController) {
     val qrViewModel = AppModule.qrViewModel
     val userQrCodeState by qrViewModel.qrState.collectAsState()
     val userWithMedicalData by qrViewModel.userWithMedicalData.collectAsState()
-    Log.d("QRScreen", "userWithMedicalData: $userWithMedicalData")
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
+    val snackBarHostState = remember { SnackbarHostState() }
+    val isServiceRunning by qrViewModel.isServiceRunning.collectAsState()
+    val checked by qrViewModel.isNotificationEnabled.collectAsState()
+    val file = File(
+        context.getExternalFilesDir(Environment.DIRECTORY_PICTURES),
+        "medical_qr_code_${System.currentTimeMillis()}.png"
+    )
 
-    var isServiceRunning by remember { mutableStateOf(false) }
 
     LaunchedEffect(userWithMedicalData) {
         userWithMedicalData?.let {
@@ -79,61 +104,139 @@ fun QRScreen() {
         }
     }
 
-    when (userQrCodeState) {
-        is QrResponse.Loading -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                CircularProgressIndicator()
-            }
-        }
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                showBackButton = true,
+                onBackClick = { navController.popBackStack() },
+                title = "QR Code",
+                actions = {
+                    Switch(
+                        checked = checked,
+                        colors = SwitchDefaults.colors(
+                            checkedThumbColor = MaterialTheme.colorScheme.outline,
+                            uncheckedThumbColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            checkedTrackColor = MaterialTheme.colorScheme.primary,
+                            uncheckedTrackColor = MaterialTheme.colorScheme.surfaceVariant,
+                            checkedBorderColor = MaterialTheme.colorScheme.primary,
+                            uncheckedBorderColor = MaterialTheme.colorScheme.outline,
+                        ),
+                        onCheckedChange = { isEnabled ->
+                            qrViewModel.setIsNotificationEnabled(isEnabled)
+                            if (!isEnabled && isServiceRunning) {
+                                context.stopService(
+                                    Intent(
+                                        context,
+                                        QrForegroundService::class.java
+                                    )
+                                )
+                                qrViewModel.setIsServiceRunning(false)
+                            }
+                        },
+                        thumbContent = if (checked) {
+                            {
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                                )
+                            }
+                        } else {
+                            null
+                        }
+                    )
+                }
+            )
+        },
+        snackbarHost = { SnackbarHost(snackBarHostState) }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .padding(vertical = 8.dp),
+        ) {
+            when (val state = userQrCodeState) {
+                is QrResponse.Loading -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                }
 
-        is QrResponse.GetQr -> {
-            val qrBitmap = (userQrCodeState as QrResponse.GetQr).qr
+                is QrResponse.GetQr -> {
+                    userWithMedicalData?.let {
+                        QRCodeContent(
+                            qrBitmap = state.qr,
+                            userWithMedicalData = it,
+                            onSaveClick = {
+                                qrViewModel.saveQRCodeToDevice(state.qr, context)
+                                scope.launch {
+                                    snackBarHostState.showSnackbar("QR Code saved to gallery.")
+                                }
+                            },
+                            onShareClick = {
+                                qrViewModel.shareQRCode(state.qr, context)
+                                scope.launch {
+                                    snackBarHostState.showSnackbar("Sharing QR code.")
+                                }
+                            },
+                        )
+                        if (checked && !isServiceRunning) {
+                            try {
+                                FileOutputStream(file).use { out ->
+                                    state.qr.compress(Bitmap.CompressFormat.PNG, 100, out)
+                                }
+                                val uri = FileProvider.getUriForFile(
+                                    context,
+                                    "${context.packageName}.fileprovider",
+                                    file
+                                )
+                                val intent =
+                                    Intent(context, QrForegroundService::class.java).apply {
+                                        putExtra("qrBitmapUri", uri)
+                                    }
+                                context.startForegroundService(intent)
+                                qrViewModel.setIsServiceRunning(true)
+                            } catch (e: Exception) {
+                                Toast.makeText(
+                                    context,
+                                    "Failed to start QR service",
+                                    Toast.LENGTH_SHORT
+                                ).show()
+                            }
+                        } else if (!checked && isServiceRunning) {
+                            context.stopService(Intent(context, QrForegroundService::class.java))
+                            qrViewModel.setIsServiceRunning(false)
+                        }
+                    }
+                }
 
-            userWithMedicalData?.let {
-                QRCodeContent(
-                    qrBitmap = qrBitmap,
-                    userWithMedicalData = it,
-                    onSaveClick = {
-                        qrViewModel.saveQRCodeToDevice(qrBitmap, context)
-                    },
-                    onShareClick = {
-                        qrViewModel.shareQRCode(qrBitmap, context)
-                    },
-                    onToggleService = {
-                        isServiceRunning = !isServiceRunning
-                        // handle lock screen service here
-                    },
-                    isServiceRunning = isServiceRunning
-                )
-            }
-        }
+                is QrResponse.QrError -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text(
+                            "Error: ${state.message}",
+                            color = MaterialTheme.colorScheme.error
+                        )
+                    }
+                }
 
-        is QrResponse.QrError -> {
-            val errorMsg = (userQrCodeState as QrResponse.QrError).message
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center
-            ) {
-                Text("Error: $errorMsg", color = MaterialTheme.colorScheme.error)
-            }
-        }
-
-        QrResponse.Uninitialized -> {
-            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                Text("Preparing QR Code...")
+                QrResponse.Uninitialized -> {
+                    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        Text("Preparing QR Code...")
+                    }
+                }
             }
         }
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QRCodeContent(
     qrBitmap: Bitmap,
     userWithMedicalData: UserWithMedicalData,
     onSaveClick: () -> Unit,
     onShareClick: () -> Unit,
-    onToggleService: () -> Unit,
-    isServiceRunning: Boolean
 ) {
     val configuration = LocalConfiguration.current
     val qrSize = (configuration.screenWidthDp * 0.8f).dp.coerceAtMost(300.dp)
@@ -142,108 +245,88 @@ fun QRCodeContent(
         modifier = Modifier
             .fillMaxSize()
             .background(MaterialTheme.colorScheme.background)
-            .padding(horizontal = 16.dp, vertical = 16.dp),
-        horizontalAlignment = Alignment.CenterHorizontally
+            .padding(horizontal = 24.dp, vertical = 24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.spacedBy(16.dp)
     ) {
         Text(
-            "Your Medical QR Code",
-            fontSize = 24.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.semantics { contentDescription = "QR Code Title" }
-        )
-        Spacer(modifier = Modifier.height(8.dp))
-        Text(
-            "Scan this QR code to share your medical information securely.",
+            text = "Scan this QR code to share your medical information securely.",
             style = MaterialTheme.typography.bodyMedium,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp)
-                .semantics { contentDescription = "QR Code Instructions" }
+            modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(16.dp))
+
         Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .semantics { contentDescription = "QR Code Card" },
+                .fillMaxWidth(0.85f)
+                .aspectRatio(1f),
             colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
-            elevation = CardDefaults.cardElevation(6.dp)
+            elevation = CardDefaults.cardElevation(8.dp)
         ) {
             Image(
                 bitmap = qrBitmap.asImageBitmap(),
                 contentDescription = "QR code containing your medical information",
                 modifier = Modifier
                     .size(qrSize)
-                    .padding(16.dp)
+                    .padding(8.dp)
                     .align(Alignment.CenterHorizontally)
             )
         }
-        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
-            "Emergency Medical Information",
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.semantics { contentDescription = "User Information Title" },
-            textAlign = TextAlign.Center
-        )
-        Text(
-            userWithMedicalData.user.fullName,
-            fontSize = 18.sp,
-            fontWeight = FontWeight.Bold,
+            text = "Emergency Medical Information",
+            fontSize = 20.sp,
+            fontWeight = FontWeight.SemiBold,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center,
-            modifier = Modifier
-                .semantics { contentDescription = "User Information Title" }
+            modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.height(8.dp))
+
+        Text(
+            text = userWithMedicalData.user.fullName,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.onBackground,
+            textAlign = TextAlign.Center,
+            modifier = Modifier.fillMaxWidth()
+        )
+
         WarningBanner()
-        Spacer(modifier = Modifier.height(8.dp))
+
         DataSummaryCard(
-            userWithMedicalData.medicalData.bloodType,
+            bloodType = userWithMedicalData.medicalData.bloodType,
             allergies = userWithMedicalData.medicalData.allergies,
             medications = userWithMedicalData.medicalData.medications,
-            emergencyContact = userWithMedicalData.medicalData.emergencyContact[0].phoneNumber,
+            emergencyContact = userWithMedicalData.medicalData.emergencyContact[0].phoneNumber
         )
+
         Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
+            modifier = Modifier.fillMaxWidth()
         ) {
             Button(
                 onClick = onSaveClick,
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Save, contentDescription = null)
+                Icon(Icons.Default.Save, contentDescription = "Save")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Save QR Code")
             }
+
             Button(
                 onClick = onShareClick,
                 modifier = Modifier.weight(1f),
-                shape = RoundedCornerShape(8.dp)
+                shape = RoundedCornerShape(12.dp)
             ) {
-                Icon(Icons.Default.Share, contentDescription = null)
+                Icon(Icons.Default.Share, contentDescription = "Share")
                 Spacer(modifier = Modifier.width(8.dp))
                 Text("Share QR Code")
             }
         }
-        Button(
-            onClick = onToggleService,
-            modifier = Modifier.fillMaxWidth(),
-            shape = RoundedCornerShape(8.dp)
-        ) {
-            Icon(
-                if (isServiceRunning) Icons.Default.Close else Icons.Default.Notifications,
-                contentDescription = null
-            )
-            Spacer(modifier = Modifier.width(8.dp))
-            Text(if (isServiceRunning) "Stop QR Notification" else "Show QR on Lock Screen")
-        }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
@@ -291,8 +374,6 @@ fun QRCodeContentPreview() {
             userWithMedicalData = dummyUser,
             onSaveClick = {},
             onShareClick = {},
-            onToggleService = {},
-            isServiceRunning = false
         )
     }
 }

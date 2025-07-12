@@ -17,6 +17,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Alignment.Companion.CenterHorizontally
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -29,17 +30,17 @@ fun QuickActionCardVictim(
     icon: ImageVector,
     contentDescription: String,
     title: String,
-    iconColor: Color,
-    cardColor: Color,
     onCardClick: () -> Unit
 ) {
+    val colorScheme = MaterialTheme.colorScheme
+
     Card(
         modifier = Modifier
             .padding(8.dp)
             .clickable { onCardClick() },
-        colors = CardDefaults.cardColors(cardColor),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(
-            4.dp,
+            defaultElevation = 4.dp,
             hoveredElevation = 8.dp,
             pressedElevation = 6.dp
         ),
@@ -50,18 +51,23 @@ fun QuickActionCardVictim(
                 .padding(16.dp)
                 .width(150.dp),
             verticalArrangement = Arrangement.Center,
-            horizontalAlignment = CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
             Icon(
                 icon,
                 contentDescription = contentDescription,
-                tint = iconColor,
-                modifier = Modifier.align(CenterHorizontally)
+                tint = colorScheme.secondary,
+                modifier = Modifier.align(Alignment.CenterHorizontally)
             )
-            Text(text = title, style = MaterialTheme.typography.titleMedium,color = Color.Black)
+            Text(
+                text = title,
+                style = MaterialTheme.typography.titleMedium,
+                color = colorScheme.onSecondaryContainer
+            )
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
@@ -70,8 +76,6 @@ fun QuickActionCardsPreview() {
         icon = Icons.Default.Person,
         contentDescription = "Medical Profile",
         title = "Emergency",
-        iconColor = Color.Blue,
-        cardColor = Color.White,
         onCardClick = {}
     )
 }
@@ -83,8 +87,6 @@ fun QuickActionCardsPreview1() {
         icon = Icons.Default.QrCode,
         contentDescription = "Share QR Code",
         title = "Share QR Code",
-        iconColor = Color.Blue,
-        cardColor = Color.White,
         onCardClick = {}
     )
 }
@@ -96,8 +98,6 @@ fun QuickActionCardsPreview2() {
         icon = Icons.Default.Phone,
         contentDescription = "Call 911",
         title = "Call 911",
-        iconColor = Color.Blue,
-        cardColor = Color.White,
         onCardClick = {}
     )
 }
@@ -109,8 +109,6 @@ fun QuickActionCardsPreview3() {
         icon = Icons.Default.LocationOn,
         contentDescription = "Update Location",
         title = "Update Location",
-        iconColor = Color.Blue,
-        cardColor = Color.White,
         onCardClick = {}
     )
 }

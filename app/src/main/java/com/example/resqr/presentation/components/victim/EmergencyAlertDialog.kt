@@ -32,6 +32,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 
 @Composable
@@ -56,6 +57,7 @@ fun EmergencyAlertDialog(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            // Alert Banner with Dismiss Button
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -77,12 +79,11 @@ fun EmergencyAlertDialog(
                         style = MaterialTheme.typography.titleMedium
                     )
                     Text(
-                        text = "Help has been",
+                        text = "Help has been dispatched.",
                         color = MaterialTheme.colorScheme.onPrimary,
                         style = MaterialTheme.typography.bodySmall
                     )
                 }
-                // Close button
                 IconButton(
                     onClick = onDismiss,
                     modifier = Modifier.align(Alignment.TopEnd)
@@ -95,11 +96,12 @@ fun EmergencyAlertDialog(
                 }
             }
 
+            // Countdown Timer
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .background(
-                        MaterialTheme.colorScheme.error.copy(alpha = 0.1f),
+                        MaterialTheme.colorScheme.errorContainer,
                         RoundedCornerShape(12.dp)
                     )
                     .padding(12.dp),
@@ -109,55 +111,59 @@ fun EmergencyAlertDialog(
                     Icon(
                         imageVector = Icons.Default.AccessTime,
                         contentDescription = "Timer",
-                        tint = MaterialTheme.colorScheme.error
+                        tint = MaterialTheme.colorScheme.onErrorContainer
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         text = "Auto-cancel in ${remainingTime}s",
-                        color = MaterialTheme.colorScheme.error,
+                        color = MaterialTheme.colorScheme.onErrorContainer,
                         style = MaterialTheme.typography.bodyMedium
                     )
                 }
             }
 
+            // Location Info
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .background(Color(0xFFE8F5E9), RoundedCornerShape(12.dp))
+                    .background(
+                        MaterialTheme.colorScheme.tertiaryContainer,
+                        RoundedCornerShape(12.dp)
+                    )
                     .padding(12.dp)
             ) {
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Icon(
                         imageVector = Icons.Default.LocationOn,
                         contentDescription = "Location",
-                        tint = Color(0xFF388E3C)
+                        tint = MaterialTheme.colorScheme.tertiary
                     )
                     Spacer(modifier = Modifier.width(8.dp))
                     Text(
                         "Current Location",
                         fontWeight = FontWeight.Bold,
-                        color = Color(0xFF388E3C)
+                        color = MaterialTheme.colorScheme.tertiary
                     )
                 }
                 Text(
-                    text = location.toString(),
-                    color = Color.Black,
+                    text = location,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer,
                     style = MaterialTheme.typography.bodySmall
                 )
                 Text(
                     text = "Accuracy: $accuracy",
-                    color = Color.Gray,
+                    color = MaterialTheme.colorScheme.onTertiaryContainer.copy(alpha = 0.7f),
                     style = MaterialTheme.typography.labelSmall
                 )
             }
 
+            // Call and Cancel Buttons
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
                 Button(
                     onClick = onCall911,
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
                 ) {
@@ -179,6 +185,7 @@ fun EmergencyAlertDialog(
                 }
             }
 
+            // Audio Instruction Box
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -200,4 +207,17 @@ fun EmergencyAlertDialog(
             }
         }
     }
+}
+
+
+@Composable
+@Preview(showBackground = true)
+fun EmergencyAlertDialogPreview() {
+    EmergencyAlertDialog(
+        onDismiss = {},
+        onCall911 = {},
+        onCancelAlert = {},
+        remainingTime = 10,
+        location = "Current Location"
+    )
 }

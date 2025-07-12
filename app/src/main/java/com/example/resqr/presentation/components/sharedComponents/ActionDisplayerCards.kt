@@ -1,4 +1,4 @@
-package com.example.resqr.presentation.components.both
+package com.example.resqr.presentation.components.sharedComponents
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable

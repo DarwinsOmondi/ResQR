@@ -33,7 +33,6 @@ fun QuickActionCardResponder(
     title: String,
     content: String,
     iconColor: Color,
-    cardColor: Color,
     onCardClick: () -> Unit
 ) {
     Card(
@@ -41,7 +40,7 @@ fun QuickActionCardResponder(
             .fillMaxWidth()
             .padding(horizontal = 16.dp, vertical = 8.dp)
             .clickable { onCardClick() },
-        colors = CardDefaults.cardColors(containerColor = cardColor),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surface),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 4.dp,
             hoveredElevation = 8.dp,
@@ -78,24 +77,25 @@ fun QuickActionCardResponder(
                 Text(
                     text = title,
                     style = MaterialTheme.typography.titleMedium,
-                    color = Color.Black
+                    color = MaterialTheme.colorScheme.onSurface
                 )
                 Text(
                     text = content,
                     style = MaterialTheme.typography.bodySmall,
-                    color = Color.Gray
+                    color = MaterialTheme.colorScheme.onSurfaceVariant
                 )
             }
 
             Icon(
                 imageVector = Icons.Default.ArrowForward,
                 contentDescription = "Navigate",
-                tint = Color.Gray,
+                tint = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.size(20.dp)
             )
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
@@ -106,7 +106,6 @@ fun PreviewQuickActionCardResponder() {
         title = "Scan QR Code",
         content = "Get victim medical data",
         iconColor = Color(0xFF1976D2),
-        cardColor = Color.White,
         onCardClick = { /* Navigate */ }
     )
 }

@@ -225,7 +225,6 @@ fun LogInContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Error or Success Navigation
         when (authUiState) {
             is AuthResponse.AuthError -> {
                 Text(

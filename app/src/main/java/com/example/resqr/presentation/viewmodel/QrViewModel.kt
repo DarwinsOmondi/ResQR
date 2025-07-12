@@ -12,6 +12,7 @@ import com.example.resqr.domain.model.qrModel.QrResponse
 import com.example.resqr.domain.usecase.qr.QrCodeUseCase
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
 import java.io.File
@@ -23,6 +24,19 @@ class QrViewModel(private val qrCodeUseCase: QrCodeUseCase) : ViewModel() {
 
     private val _userWithMedicalData = MutableStateFlow<UserWithMedicalData?>(null)
     val userWithMedicalData: MutableStateFlow<UserWithMedicalData?> = _userWithMedicalData
+    private val _isServiceRunning = MutableStateFlow(false)
+    val isServiceRunning: StateFlow<Boolean> = _isServiceRunning
+    private val _isNotificationEnabled = MutableStateFlow(false)
+    val isNotificationEnabled: StateFlow<Boolean> = _isNotificationEnabled
+
+    fun setIsServiceRunning(value: Boolean) {
+        _isServiceRunning.value = value
+    }
+
+    fun setIsNotificationEnabled(value: Boolean) {
+        _isNotificationEnabled.value = value
+    }
+
 
     fun getUserQrCode(userWithMedicalData: UserWithMedicalData) {
         viewModelScope.launch(Dispatchers.IO) {

@@ -105,7 +105,7 @@ class AlertViewModel(private val alertUseCase: AlertUseCase) : ViewModel() {
             alertType = AlertType.GENERAL
         )
         sendAlert(alert)
-        _shouldSendAlert.value = true // For UI if needed
+        _shouldSendAlert.value = true
     }
 
     fun sendAlert(alert: Alert) {

@@ -1,4 +1,4 @@
-package com.example.resqr.presentation.components.both
+package com.example.resqr.presentation.components.sharedComponents
 
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Favorite
@@ -51,7 +51,7 @@ fun BottomNavBar(navController: NavController) {
     NavigationBar(
         containerColor = MaterialTheme.colorScheme.surface,
         contentColor = MaterialTheme.colorScheme.onSurface,
-        tonalElevation = 4.dp,
+        tonalElevation = 4.dp
     ) {
         items.forEach { item ->
             val selected = currentDestination?.route == item.screens
@@ -72,29 +72,22 @@ fun BottomNavBar(navController: NavController) {
                 icon = {
                     Icon(
                         imageVector = item.icons,
-                        contentDescription = item.descriptions,
-                        tint = if (selected)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        contentDescription = item.descriptions
                     )
                 },
                 label = {
                     Text(
                         text = item.descriptions,
-                        color = if (selected)
-                            MaterialTheme.colorScheme.primary
-                        else
-                            MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                        style = MaterialTheme.typography.labelMedium
                     )
                 },
                 alwaysShowLabel = true,
                 colors = NavigationBarItemDefaults.colors(
-                    indicatorColor = MaterialTheme.colorScheme.surface,
-                    selectedIconColor = MaterialTheme.colorScheme.primary,
-                    selectedTextColor = MaterialTheme.colorScheme.primary,
-                    unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f),
-                    unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.7f)
+                    indicatorColor = MaterialTheme.colorScheme.secondaryContainer,
+                    selectedIconColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    selectedTextColor = MaterialTheme.colorScheme.onSecondaryContainer,
+                    unselectedIconColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f),
+                    unselectedTextColor = MaterialTheme.colorScheme.onSurface.copy(alpha = 0.6f)
                 )
             )
         }

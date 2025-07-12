@@ -27,6 +27,7 @@ class QrRepositoryImpl : QRCodeRepository {
                         if (bitMatrix[x, y]) android.graphics.Color.BLACK else android.graphics.Color.WHITE
                 }
             }
+            emit(QrResponse.GetQr(bitmap))
         } catch (e: Exception) {
             emit(QrResponse.QrError(e.message.toString()))
         }

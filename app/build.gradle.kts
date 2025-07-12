@@ -5,6 +5,7 @@ plugins {
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
     kotlin("plugin.serialization") version "2.1.10"
+    id("com.google.devtools.ksp")
 }
 
 android {
@@ -36,6 +37,11 @@ android {
             "String",
             "SUPABASE_KEY",
             "\"${properties.getProperty("SUPABASE_KEY", "")}\""
+        )
+        buildConfigField(
+            "String",
+            "SECRET_KEY",
+            "\"${properties.getProperty("SECRET_KEY", "")}\""
         )
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
@@ -126,4 +132,12 @@ dependencies {
     implementation("androidx.camera:camera-lifecycle:1.4.2")
     implementation("androidx.camera:camera-view:1.4.2")
     implementation("androidx.camera:camera-extensions:1.4.2")
+
+    //Room db
+    val room_version = "2.7.2"
+    implementation("androidx.room:room-runtime:${room_version}")
+    ksp("androidx.room:room-compiler:$room_version")
+
+    //AndroidX Security Crypto
+    implementation("androidx.security:security-crypto:1.1.0-beta01")
 }

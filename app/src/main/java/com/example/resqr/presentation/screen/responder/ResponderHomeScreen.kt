@@ -22,19 +22,14 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
-import com.example.resqr.presentation.components.both.ActionDisplayerCards
-import com.example.resqr.presentation.components.both.BottomNavBar
+import com.example.resqr.presentation.components.sharedComponents.ActionDisplayerCards
+import com.example.resqr.presentation.components.sharedComponents.BottomNavBar
 import com.example.resqr.presentation.components.responder.MedicalInformationCard
 import com.example.resqr.presentation.components.responder.PriorityAssessmentCard
 import com.example.resqr.presentation.components.responder.QuickActionCardResponder
 
 @Composable
 fun ResponderHomeScreen(navController: NavController) {
-    ResponderHomeScreenContent(navController)
-}
-
-@Composable
-fun ResponderHomeScreenContent(navController: NavController) {
     val scrollState = rememberScrollState()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -48,73 +43,88 @@ fun ResponderHomeScreenContent(navController: NavController) {
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            ActionDisplayerCards(
-                icon = Icons.Default.HealthAndSafety,
-                contentDescription = "First Responder",
-                title = "First Responder",
-                content = "Emergency response",
-                iconColor = Color.White,
-                cardColor = Color(0xFF1976D2),
-                onCardClick = {}
-            )
-
-            Text(
-                "Quick Actions",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 16.dp)
-            )
-
-            QuickActionCardResponder(
-                icon = Icons.Default.QrCode,
-                contentDescription = "Scan QR",
-                title = "Scan QR Code",
-                content = "Get victim medical data",
-                iconColor = Color(0xFF1976D2),
-                cardColor = Color.White,
-                onCardClick = { /* Navigate */ }
-            )
-
-            QuickActionCardResponder(
-                icon = Icons.Default.Phone,
-                contentDescription = "Call",
-                title = "Call Dispatch",
-                content = "Contact emergency services",
-                iconColor = Color(0xFFF44336),
-                cardColor = Color.White,
-                onCardClick = { /* Navigate */ }
-            )
-
-            QuickActionCardResponder(
-                icon = Icons.Default.LocationOn,
-                contentDescription = "Location",
-                title = "Share Location",
-                content = "Send current location",
-                iconColor = Color(0xFF4CAF50),
-                cardColor = Color.White,
-                onCardClick = { /* Navigate */ }
-            )
-
-            QuickActionCardResponder(
-                icon = Icons.Default.Update,
-                contentDescription = "Update",
-                title = "Update Status",
-                content = "Report situation status",
-                iconColor = Color(0xFFFFC107),
-                cardColor = Color.White,
-                onCardClick = { /* Navigate */ }
-            )
-            Text(
-                "Response Guidelines",
-                style = MaterialTheme.typography.bodyLarge,
-                modifier = Modifier
-                    .align(Alignment.Start)
-                    .padding(start = 16.dp)
-            )
-
-            PriorityAssessmentCard()
-            MedicalInformationCard()
+            ResponderHomeScreenContent()
         }
     }
+}
+
+@Composable
+fun ResponderHomeScreenContent() {
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(8.dp),
+        verticalArrangement = Arrangement.SpaceEvenly,
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        ActionDisplayerCards(
+            icon = Icons.Default.HealthAndSafety,
+            contentDescription = "First Responder",
+            title = "First Responder",
+            content = "Emergency response",
+            iconColor = Color.White,
+            cardColor = Color(0xFF1976D2),
+            onCardClick = {}
+        )
+
+        Text(
+            "Quick Actions",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier
+                .align(Alignment.Start)
+                .padding(start = 16.dp)
+        )
+
+        QuickActionCardResponder(
+            icon = Icons.Default.QrCode,
+            contentDescription = "Scan QR",
+            title = "Scan QR Code",
+            content = "Get victim medical data",
+            iconColor = Color(0xFF1976D2),
+            onCardClick = { /* Navigate */ }
+        )
+
+        QuickActionCardResponder(
+            icon = Icons.Default.Phone,
+            contentDescription = "Call",
+            title = "Call Dispatch",
+            content = "Contact emergency services",
+            iconColor = Color(0xFFF44336),
+            onCardClick = { /* Navigate */ }
+        )
+
+        QuickActionCardResponder(
+            icon = Icons.Default.LocationOn,
+            contentDescription = "Location",
+            title = "Share Location",
+            content = "Send current location",
+            iconColor = Color(0xFF4CAF50),
+            onCardClick = { /* Navigate */ }
+        )
+
+        QuickActionCardResponder(
+            icon = Icons.Default.Update,
+            contentDescription = "Update",
+            title = "Update Status",
+            content = "Report situation status",
+            iconColor = Color(0xFFFFC107),
+            onCardClick = { /* Navigate */ }
+        )
+        Text(
+            "Response Guidelines",
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier
+                .align(Alignment.Start)
+                .padding(start = 16.dp)
+        )
+
+        PriorityAssessmentCard()
+        MedicalInformationCard()
+    }
+}
+
+@Preview(showBackground = true)
+@Composable
+fun ResponderHomeScreenPreview() {
+    ResponderHomeScreenContent()
 }

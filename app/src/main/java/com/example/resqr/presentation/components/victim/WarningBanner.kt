@@ -24,7 +24,7 @@ fun WarningBanner() {
             .fillMaxWidth()
             .clip(RoundedCornerShape(10.dp))
             .clip(RoundedCornerShape(12.dp))
-            .background(Color(0xFFFFA726).copy(alpha = 0.1f))
+            .background(Color(0xFFFFA726).copy(alpha = 0.3f))
             .padding(16.dp),
         contentAlignment = Alignment.Center
     ) {
@@ -42,7 +42,7 @@ fun WarningBanner() {
             Text(
                 text = "This QR code contains sensitive medical information. Only share it with authorized medical personnel.",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color(0xFF6D4C41),
+                color = MaterialTheme.colorScheme.onSurface,
                 textAlign = TextAlign.Center,
                 modifier = Modifier.fillMaxWidth()
             )

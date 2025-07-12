@@ -8,7 +8,9 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.VolumeUp
 import androidx.compose.material.icons.filled.Mic
@@ -27,15 +29,22 @@ import androidx.compose.ui.unit.dp
 
 @Composable
 fun VoiceCommandsCard(onVoiceCommandClick: () -> Unit) {
+    val colorScheme = MaterialTheme.colorScheme
+    val scrollState = rememberScrollState()
+
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        colors = CardDefaults.cardColors(Color.White)
+        colors = CardDefaults.cardColors(
+            containerColor = colorScheme.surface,
+            contentColor = colorScheme.onSurface
+        )
     ) {
         Column(
             modifier = Modifier
                 .fillMaxWidth()
+                .verticalScroll(scrollState)
                 .padding(8.dp),
             verticalArrangement = Arrangement.SpaceEvenly,
             horizontalAlignment = Alignment.CenterHorizontally
@@ -52,14 +61,13 @@ fun VoiceCommandsCard(onVoiceCommandClick: () -> Unit) {
                     contentDescription = "Volume Up",
                     modifier = Modifier
                         .padding(8.dp)
-                        .align(Alignment.CenterVertically)
                         .clip(CircleShape),
-                   tint = Color(0xFF1976D2)
+                    tint = colorScheme.primary
                 )
                 Text(
                     "Voice Commands",
                     style = MaterialTheme.typography.bodyLarge,
-                    color = Color.Black,
+                    color = colorScheme.onSurface,
                     modifier = Modifier
                         .padding(8.dp)
                         .align(Alignment.CenterVertically)
@@ -73,49 +81,45 @@ fun VoiceCommandsCard(onVoiceCommandClick: () -> Unit) {
                     .size(100.dp)
                     .padding(8.dp)
                     .clip(CircleShape)
-                    .background(Color(0xFF1976D2))
+                    .background(colorScheme.primary)
                     .clickable { onVoiceCommandClick() },
-                tint = Color.White
+                tint = colorScheme.onPrimary
             )
-
 
             Text(
                 "Tap to activate voice commands",
                 style = MaterialTheme.typography.titleMedium,
-                color = Color.Black,
+                color = colorScheme.onSurface,
                 modifier = Modifier.padding(8.dp)
             )
             Text(
                 "Available Commands:",
                 style = MaterialTheme.typography.titleSmall,
-                color = Color.Black,
-                modifier = Modifier
-                    .align(Alignment.Start)
+                color = colorScheme.onSurfaceVariant,
+                modifier = Modifier.align(Alignment.Start)
             )
             Text(
                 "'Emergency': - Trigger alert",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black,
-                modifier = Modifier
-                    .align(Alignment.Start)
+                color = colorScheme.onSurface,
+                modifier = Modifier.align(Alignment.Start)
             )
             Text(
                 "'Medical': - View medical profile",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black,
-                modifier = Modifier
-                    .align(Alignment.Start)
+                color = colorScheme.onSurface,
+                modifier = Modifier.align(Alignment.Start)
             )
             Text(
                 "'QR Code': - Generate QR code",
                 style = MaterialTheme.typography.bodyMedium,
-                color = Color.Black,
-                modifier = Modifier
-                    .align(Alignment.Start)
+                color = colorScheme.onSurface,
+                modifier = Modifier.align(Alignment.Start)
             )
         }
     }
 }
+
 
 @Preview(showBackground = true)
 @Composable
