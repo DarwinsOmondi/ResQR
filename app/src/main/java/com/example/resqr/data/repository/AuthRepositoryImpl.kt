@@ -21,7 +21,6 @@ class AuthRepositoryImpl(private val supabaseClient: SupabaseClient) : AuthRepos
         fullName: String
     ): AuthResponse {
         return try {
-            // Sign up the user with extra metadata
             supabaseClient.auth.signUpWith(Email) {
                 this.email = email
                 this.password = password
@@ -109,7 +108,7 @@ class AuthRepositoryImpl(private val supabaseClient: SupabaseClient) : AuthRepos
                 )
                 AuthResponse.GetAuthUser(currentUser)
             } else {
-                AuthResponse.AuthError("User not found")
+                AuthResponse.AuthError("")
             }
         } catch (e: Exception) {
             AuthResponse.AuthError(e.message ?: "Unknown Error")
