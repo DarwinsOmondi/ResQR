@@ -1,9 +1,12 @@
 package com.example.resqr.di
 
 import com.example.resqr.BuildConfig
+import com.example.resqr.ResQRApp
+import com.example.resqr.data.local.PasswordDatabase
 import com.example.resqr.data.repository.AlertRepositoryImpl
 import com.example.resqr.data.repository.AuthRepositoryImpl
 import com.example.resqr.data.repository.MedicalRepositoryImpl
+import com.example.resqr.data.repository.PasswordRepositoryImpl
 import com.example.resqr.data.repository.QrRepositoryImpl
 import com.example.resqr.data.repository.UserRepositoryImpl
 import com.example.resqr.domain.usecase.alert.AlertUseCase
@@ -19,6 +22,12 @@ import com.example.resqr.domain.usecase.medical.GetMedicalDataUseCase
 import com.example.resqr.domain.usecase.medical.InsertMedicalDataUseCase
 import com.example.resqr.domain.usecase.medical.MedicalUseCases
 import com.example.resqr.domain.usecase.medical.UpdateMedicalDataUseCase
+import com.example.resqr.domain.usecase.password.DeletePasswordUseCase
+import com.example.resqr.domain.usecase.password.GetPasswordUseCase
+import com.example.resqr.domain.usecase.password.IsPasswordCorrectUseCase
+import com.example.resqr.domain.usecase.password.PasswordUseCase
+import com.example.resqr.domain.usecase.password.SavePasswordUseCase
+import com.example.resqr.domain.usecase.password.UpdatePasswordUseCase
 import com.example.resqr.domain.usecase.qr.QrCodeUseCase
 import com.example.resqr.domain.usecase.user.DeleteUserUseCase
 import com.example.resqr.domain.usecase.user.GetUserUseCase
@@ -28,6 +37,7 @@ import com.example.resqr.domain.usecase.user.UserUseCase
 import com.example.resqr.presentation.viewmodel.AlertViewModel
 import com.example.resqr.presentation.viewmodel.AuthViewModel
 import com.example.resqr.presentation.viewmodel.MedicalViewModel
+import com.example.resqr.presentation.viewmodel.PasswordViewModel
 import com.example.resqr.presentation.viewmodel.QrViewModel
 import com.example.resqr.presentation.viewmodel.UserViewModel
 import io.github.jan.supabase.auth.Auth
@@ -46,6 +56,11 @@ object AppModule {
         install(Realtime)
         install(Storage)
 
+    }
+
+    //dao
+    val passwordDao by lazy {
+        PasswordDatabase.getDatabase(ResQRApp.appContext).passwordDao()
     }
 
     //REPOSITORY IMPLEMENTATIONS
@@ -67,6 +82,10 @@ object AppModule {
 
     val qrRepositoryImpl by lazy {
         QrRepositoryImpl()
+    }
+
+    val passwordRepositoryImpl by lazy {
+        PasswordRepositoryImpl(passwordDao)
     }
 
     //USE CASES
@@ -156,6 +175,36 @@ object AppModule {
         )
     }
 
+    //Password UseCase
+    val deletePasswordUseCase by lazy {
+        DeletePasswordUseCase(passwordRepositoryImpl)
+    }
+    val getPasswordUseCase by lazy {
+        GetPasswordUseCase(passwordRepositoryImpl)
+    }
+
+    val isPassWordUseCase by lazy {
+        IsPasswordCorrectUseCase(passwordRepositoryImpl)
+    }
+
+    val updatePasswordUseCase by lazy {
+        UpdatePasswordUseCase(passwordRepositoryImpl)
+    }
+
+    val savePasswordUseCase by lazy {
+        SavePasswordUseCase(passwordRepositoryImpl)
+    }
+
+    val passwordUseCase by lazy {
+        PasswordUseCase(
+            deletePassword = deletePasswordUseCase,
+            getPassword = getPasswordUseCase,
+            isPasswordCorrect = isPassWordUseCase,
+            updatePassword = updatePasswordUseCase,
+            savePassword = savePasswordUseCase
+        )
+    }
+
 
     //VIEW MODELS
     val authViewModel by lazy {
@@ -173,5 +222,9 @@ object AppModule {
     }
     val qrViewModel by lazy {
         QrViewModel(qrCodeUseCase)
+    }
+
+    val passwordViewModel by lazy {
+        PasswordViewModel(passwordUseCase)
     }
 }

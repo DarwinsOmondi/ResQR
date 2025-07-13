@@ -229,7 +229,6 @@ fun QRScreen(navController: NavController) {
         }
     }
 }
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun QRCodeContent(

@@ -15,8 +15,32 @@ class PasswordViewModel(private val passwordUseCase: PasswordUseCase) : ViewMode
     private val _password = MutableStateFlow<String?>(null)
     val password: StateFlow<String?> = _password
 
+    private val _confirmPassword = MutableStateFlow<String?>(null)
+    val confirmPassword: StateFlow<String?> = _confirmPassword
+
+    private val _isPasswordVisible = MutableStateFlow(false)
+    val isPasswordVisible: StateFlow<Boolean> = _isPasswordVisible
+
+    private val _isConfirmPasswordVisible = MutableStateFlow(false)
+    val isConfirmPasswordVisible: StateFlow<Boolean> = _isConfirmPasswordVisible
+
+    private val _isPasswordAvailable = MutableStateFlow(false)
+    val isPasswordAvailable: StateFlow<Boolean> = _isPasswordAvailable
+
     fun onPasswordChanged(password: String) {
         _password.value = password
+    }
+
+    fun onConfirmPasswordChanged(confirmPassword: String) {
+        _confirmPassword.value = confirmPassword
+    }
+
+    fun onPasswordVisibilityChanged() {
+        _isPasswordVisible.value = !_isPasswordVisible.value
+    }
+
+    fun onConfirmPasswordVisibilityChanged() {
+        _isConfirmPasswordVisible.value = !_isConfirmPasswordVisible.value
     }
 
     fun setPassword(userId: Int, password: String) {
@@ -45,6 +69,10 @@ class PasswordViewModel(private val passwordUseCase: PasswordUseCase) : ViewMode
             _passwordState.value = PasswordResponse.Loading
             passwordUseCase.deletePassword(userId).collect { result ->
                 _passwordState.value = result
+
+                if (result is PasswordResponse.GetPassword && result.password.isNotEmpty()) {
+                    populateIsPasswordAvailable(result.password)
+                }
             }
         }
     }
@@ -65,5 +93,19 @@ class PasswordViewModel(private val passwordUseCase: PasswordUseCase) : ViewMode
                 _passwordState.value = result
             }
         }
+    }
+
+    fun checkPasswordSimilarity(password: String, confirmPassword: String): Boolean {
+        return password == confirmPassword
+    }
+
+    fun populateIsPasswordAvailable(password: String) {
+        _isPasswordAvailable.value = password.isNotEmpty()
+    }
+
+    fun resetTextFields() {
+        _password.value = ""
+        _confirmPassword.value = ""
+
     }
 }

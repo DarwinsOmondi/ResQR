@@ -45,6 +45,7 @@ import com.example.resqr.presentation.components.victim.QuickActionCardVictim
 import com.example.resqr.presentation.components.victim.VoiceCommandsCard
 import com.example.resqr.presentation.viewmodel.AlertViewModel
 import com.example.resqr.presentation.viewmodel.MedicalViewModel
+import com.example.resqr.presentation.viewmodel.PasswordViewModel
 import com.example.resqr.presentation.viewmodel.QrViewModel
 import com.example.resqr.presentation.viewmodel.UserViewModel
 import com.example.resqr.utils.LocationService
@@ -56,6 +57,7 @@ fun VictimHomeScreen(navController: NavController) {
     val alertViewModel: AlertViewModel = AppModule.alertViewModel
     val medicalViewModel: MedicalViewModel = AppModule.medicalViewModel
     val qrViewModel: QrViewModel = AppModule.qrViewModel
+    val passwordViewModel: PasswordViewModel = AppModule.passwordViewModel
     val snackBarHostState = remember { SnackbarHostState() }
 
     val userState by userViewModel.userState.collectAsState()
@@ -80,6 +82,7 @@ fun VictimHomeScreen(navController: NavController) {
         currentUser = (userState as? UserResponse.GetUser)?.user
         currentUser?.let {
             medicalViewModel.getCurrentUserMedicalDataUseCase(it.id)
+            passwordViewModel.getPassword(1)
         }
     }
 

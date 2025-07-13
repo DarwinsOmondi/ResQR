@@ -31,8 +31,10 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
+import com.example.resqr.data.local.PasswordDatabase
 import com.example.resqr.presentation.screen.auth.LogIn
 import com.example.resqr.presentation.screen.auth.SignUp
+import com.example.resqr.presentation.screen.password.SetPasswordScreen
 import com.example.resqr.presentation.screen.qr.QRScreen
 import com.example.resqr.presentation.screen.responder.ResponderHomeScreen
 import com.example.resqr.presentation.screen.sharedScreens.SplashScreen
@@ -68,9 +70,8 @@ class MainActivity : ComponentActivity() {
                     }
                 }
             }
-
+        PasswordDatabase.getDatabase(this)
         enableEdgeToEdge()
-
         setContent {
             ResQRTheme {
                 val view = LocalView.current
@@ -145,6 +146,9 @@ class MainActivity : ComponentActivity() {
             }
             composable("settings_screen") {
                 SettingsScreen(navController)
+            }
+            composable("set_password_screen") {
+                SetPasswordScreen(navController)
             }
         }
     }

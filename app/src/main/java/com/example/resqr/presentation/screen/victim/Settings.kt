@@ -1,11 +1,8 @@
 package com.example.resqr.presentation.screen.victim
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
@@ -20,13 +17,11 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.ShapeDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.asImageBitmap
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
@@ -46,7 +41,12 @@ fun SettingsScreen(navController: NavController) {
         },
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
-            SettingsContents()
+            SettingsContents(
+                onAccountClick = { navController.navigate("set_password_screen") },
+                onPrivacyClick = { /* Handle privacy click */ },
+                onDisplayClick = { /* Handle display click */ },
+                onHelpClick = { /* Handle help click */ }
+            )
         }
     }
 }
@@ -61,7 +61,7 @@ fun SettingsContents(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(horizontal = 16.dp, vertical = 24.dp),
+            .padding(vertical = 24.dp),
         verticalArrangement = Arrangement.spacedBy(20.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
@@ -91,7 +91,7 @@ fun SettingsContents(
             title = "Account",
             content = "Security and account settings",
             iconColor = Color(0xFF1976D2),
-            onCardClick = { /* Navigate */ }
+            onCardClick = onAccountClick
         )
 
         QuickActionCardResponder(
@@ -100,7 +100,7 @@ fun SettingsContents(
             title = "Privacy",
             content = "Lock your account and medical data",
             iconColor = Color(0xFFF44336),
-            onCardClick = { /* Navigate */ }
+            onCardClick = onPrivacyClick
         )
 
         QuickActionCardResponder(
@@ -109,7 +109,7 @@ fun SettingsContents(
             title = "Display",
             content = "Theme and language settings",
             iconColor = Color(0xFF4CAF50),
-            onCardClick = { /* Navigate */ }
+            onCardClick = onDisplayClick
         )
 
         QuickActionCardResponder(
@@ -118,7 +118,7 @@ fun SettingsContents(
             title = "Help",
             content = "Help center, contact us, and privacy policy",
             iconColor = Color(0xFFFFC107),
-            onCardClick = { /* Navigate */ }
+            onCardClick = onHelpClick
         )
     }
 }
