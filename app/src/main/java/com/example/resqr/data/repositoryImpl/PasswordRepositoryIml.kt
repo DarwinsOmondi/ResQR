@@ -1,11 +1,10 @@
-package com.example.resqr.data.repository
+package com.example.resqr.data.repositoryImpl
 
 import android.util.Log
-import com.example.resqr.data.local.PasswordDao
-import com.example.resqr.data.local.PasswordEntity
+import com.example.resqr.data.local.dao.PasswordDao
+import com.example.resqr.data.local.entity.PasswordEntity
 import com.example.resqr.domain.model.passwordModel.PasswordResponse
-import com.example.resqr.domain.repository.passwordRepository.PasswordRepository
-import com.example.resqr.utils.EncryptionUtils
+import com.example.resqr.domain.repository.password.PasswordRepository
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
@@ -19,9 +18,10 @@ class PasswordRepositoryImpl(private val passwordDao: PasswordDao) : PasswordRep
             val passwordEntity = withContext(Dispatchers.IO) {
                 passwordDao.getPasswordByUserId(userId)
             }
+            Log.d("PasswordRepositoryImpl", "Fetched password: ${passwordEntity?.password}")
             if (passwordEntity != null) {
-                val decryptedPassword = EncryptionUtils.decrypt(passwordEntity.password)
-                emit(PasswordResponse.GetPassword(decryptedPassword))
+              //  val decryptedPassword = EncryptionUtils.decrypt(passwordEntity.password)
+                emit(PasswordResponse.GetPassword(passwordEntity.password))
             } else {
                 emit(PasswordResponse.PasswordError("No password found for userId: $userId"))
             }
@@ -34,9 +34,9 @@ class PasswordRepositoryImpl(private val passwordDao: PasswordDao) : PasswordRep
     override fun savePassword(userId: Int, password: String): Flow<PasswordResponse> = flow {
         emit(PasswordResponse.Loading)
         try {
-            val encrypted = EncryptionUtils.encrypt(password)
+           // val encrypted = EncryptionUtils.encrypt(password)
             withContext(Dispatchers.IO) {
-                passwordDao.insertPassword(PasswordEntity(userId = userId, password = encrypted))
+                passwordDao.insertPassword(PasswordEntity(userId = userId, password = password))
             }
             Log.d("PasswordRepositoryImpl", "Password successfully saved for userId: $userId")
             emit(PasswordResponse.GetPassword(password))
@@ -62,9 +62,9 @@ class PasswordRepositoryImpl(private val passwordDao: PasswordDao) : PasswordRep
     override fun updatePassword(userId: Int, newPassword: String): Flow<PasswordResponse> = flow {
         emit(PasswordResponse.Loading)
         try {
-            val encrypted = EncryptionUtils.encrypt(newPassword)
+         //   val encrypted = EncryptionUtils.encrypt(newPassword)
             withContext(Dispatchers.IO) {
-                passwordDao.updatePasswordByUserId(userId, encrypted)
+                passwordDao.updatePasswordByUserId(userId, newPassword)
             }
             emit(PasswordResponse.GetPassword(newPassword))
         } catch (e: Exception) {
@@ -76,9 +76,9 @@ class PasswordRepositoryImpl(private val passwordDao: PasswordDao) : PasswordRep
     override fun isPasswordCorrect(userId: Int, password: String): Flow<PasswordResponse> = flow {
         emit(PasswordResponse.Loading)
         try {
-            val encryptedPassword = EncryptionUtils.encrypt(password)
+         //   val encryptedPassword = EncryptionUtils.encrypt(password)
             val count = withContext(Dispatchers.IO) {
-                passwordDao.isPasswordCorrect(userId, encryptedPassword)
+                passwordDao.isPasswordCorrect(userId, password)
             }
             emit(PasswordResponse.PasswordSuccess(count > 0))
         } catch (e: Exception) {

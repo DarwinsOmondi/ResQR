@@ -1,9 +1,9 @@
-package com.example.resqr.data.repository
+package com.example.resqr.data.repositoryImpl
 
 import android.util.Log
 import com.example.resqr.domain.model.alertModel.Alert
 import com.example.resqr.domain.model.alertModel.AlertResponse
-import com.example.resqr.domain.repository.alertRepository.AlertRepository
+import com.example.resqr.domain.repository.alert.AlertRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.Flow

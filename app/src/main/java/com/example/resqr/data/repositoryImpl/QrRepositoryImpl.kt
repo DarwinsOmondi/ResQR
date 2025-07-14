@@ -1,10 +1,10 @@
-package com.example.resqr.data.repository
+package com.example.resqr.data.repositoryImpl
 
 import android.graphics.Bitmap
 import androidx.core.graphics.createBitmap
 import androidx.core.graphics.set
 import com.example.resqr.domain.model.qrModel.QrResponse
-import com.example.resqr.domain.repository.qrRepository.QRCodeRepository
+import com.example.resqr.domain.repository.qr.QRCodeRepository
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.qrcode.QRCodeWriter
 import kotlinx.coroutines.flow.Flow

@@ -1,14 +1,15 @@
-package com.example.resqr.data.local
+package com.example.resqr.data.local.dao
 
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.resqr.data.local.entity.PasswordEntity
 
 @Dao
 interface PasswordDao {
 
-    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    @Insert(onConflict = OnConflictStrategy.Companion.REPLACE)
     fun insertPassword(passwordEntity: PasswordEntity)
 
     @Query("SELECT * FROM password_table WHERE userId = :userId")

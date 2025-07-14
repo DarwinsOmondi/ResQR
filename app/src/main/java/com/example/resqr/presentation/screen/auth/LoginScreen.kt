@@ -84,7 +84,7 @@ fun LogInContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Sign In / Signup Switch
+
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -116,7 +116,7 @@ fun LogInContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Email Input
+
         OutlinedTextField(
             value = email.value,
             onValueChange = { authViewModel.onEmailChange(it) },
@@ -139,7 +139,7 @@ fun LogInContent(
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Password Input
+
         OutlinedTextField(
             value = password.value,
             onValueChange = { authViewModel.onPasswordChange(it) },
@@ -171,7 +171,7 @@ fun LogInContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Continue Button
+
         Button(
             onClick = {
                 authViewModel.signIn(email.value, password.value)
@@ -194,12 +194,12 @@ fun LogInContent(
 
         Spacer(modifier = Modifier.height(24.dp))
 
-        // Social Login Text
+
         Text("Or Continue With", color = Color.Gray)
 
         Spacer(modifier = Modifier.height(16.dp))
 
-        // Social Icons Row
+
         Row(
             horizontalArrangement = Arrangement.SpaceEvenly,
             modifier = Modifier.fillMaxWidth()

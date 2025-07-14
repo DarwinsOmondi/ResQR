@@ -1,4 +1,4 @@
-package com.example.resqr.domain.repository.userRepository
+package com.example.resqr.domain.repository.user
 
 import com.example.resqr.domain.model.authModel.User
 import com.example.resqr.domain.model.usermodel.UserResponse

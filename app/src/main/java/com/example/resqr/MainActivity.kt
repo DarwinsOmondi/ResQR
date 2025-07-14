@@ -31,7 +31,7 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
 import androidx.core.view.WindowCompat
-import com.example.resqr.data.local.PasswordDatabase
+import com.example.resqr.data.local.database.PasswordDatabase
 import com.example.resqr.presentation.screen.auth.LogIn
 import com.example.resqr.presentation.screen.auth.SignUp
 import com.example.resqr.presentation.screen.password.SetPasswordScreen
@@ -39,6 +39,8 @@ import com.example.resqr.presentation.screen.qr.QRScreen
 import com.example.resqr.presentation.screen.responder.ResponderHomeScreen
 import com.example.resqr.presentation.screen.sharedScreens.SplashScreen
 import com.example.resqr.presentation.screen.victim.AddMedicalDataScreen
+import com.example.resqr.presentation.screen.victim.MedicalDataLockScreen
+import com.example.resqr.presentation.screen.victim.QrLockScreen
 import com.example.resqr.presentation.screen.victim.SettingsScreen
 import com.example.resqr.presentation.screen.victim.VictimHomeScreen
 import com.google.zxing.integration.android.IntentIntegrator
@@ -149,6 +151,9 @@ class MainActivity : ComponentActivity() {
             }
             composable("set_password_screen") {
                 SetPasswordScreen(navController)
+            }
+            composable("medical_data_lock_screen"){
+                QrLockScreen(navController)
             }
         }
     }

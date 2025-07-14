@@ -1,16 +1,20 @@
 package com.example.resqr.presentation.screen.password
 
 import android.widget.Toast
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
@@ -19,10 +23,12 @@ import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,6 +48,7 @@ import com.example.resqr.domain.model.passwordModel.PasswordResponse
 import com.example.resqr.presentation.components.sharedComponents.TopAppBar
 import com.example.resqr.presentation.components.victim.SectionHeader
 import com.example.resqr.presentation.viewmodel.PasswordViewModel
+import com.example.resqr.presentation.viewmodel.UserViewModel
 
 @Composable
 fun SetPasswordScreen(navController: NavController) {
@@ -53,6 +60,13 @@ fun SetPasswordScreen(navController: NavController) {
     val isPasswordVisible by passwordViewModel.isPasswordVisible.collectAsState()
     val isConfirmPasswordVisible by passwordViewModel.isConfirmPasswordVisible.collectAsState()
     val isPasswordAvailable by passwordViewModel.isPasswordAvailable.collectAsState()
+    val buttonState = password != null && confirmPassword != null
+    val userViewModel: UserViewModel = AppModule.userViewModel
+    val userState by userViewModel.userState.collectAsState()
+    LaunchedEffect(Unit) {
+        userViewModel.getUser()
+        passwordViewModel.resetUnlockState()
+    }
 
     val context = LocalContext.current
 
@@ -102,6 +116,10 @@ fun SetPasswordScreen(navController: NavController) {
                     } else {
                         passwordViewModel.updatePassword(userId = 1, password = passwordNotNull)
                     }
+                },
+                buttonState = buttonState,
+                onDeletePasswordClick = {
+                    passwordViewModel.deletePassword(userId = 1)
                 }
             )
         }
@@ -121,10 +139,13 @@ fun SetPasswordContents(
     isConfirmPasswordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
     onConfirmPasswordVisibilityChange: () -> Unit,
+    onDeletePasswordClick: () -> Unit,
     isPasswordAvailable: Boolean = false,
     passWordState: PasswordResponse,
     isPasswordCorrect: Boolean = false,
+    buttonState: Boolean
 ) {
+    val isPasswordExist = passWordState is PasswordResponse.GetPassword
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -139,31 +160,35 @@ fun SetPasswordContents(
         )
 
         Text(
-            text = "Secure your account and protect your data with a strong password.",
+            text = "Secure your medical data and protect it with a strong password.",
             style = MaterialTheme.typography.titleMedium,
             color = MaterialTheme.colorScheme.onSurface,
             textAlign = TextAlign.Center,
         )
 
-        // Password input
         TextField(
             value = password,
             onValueChange = onPasswordChange,
             label = { Text("Password") },
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
-                IconButton(onClick = onPasswordVisibilityChange) {
-                    Icon(
-                        imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Toggle password visibility"
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("${password.length}/10")
+
+                    IconButton(onClick = onPasswordVisibilityChange) {
+                        Icon(
+                            imageVector = if (isPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = "Toggle password visibility"
+                        )
+                    }
                 }
             },
             visualTransformation = if (isPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
-
-        // Confirm password input
         TextField(
             value = confirmPassword,
             onValueChange = onConfirmPasswordChange,
@@ -181,19 +206,24 @@ fun SetPasswordContents(
             },
             modifier = Modifier.fillMaxWidth(),
             trailingIcon = {
-                IconButton(onClick = onConfirmPasswordVisibilityChange) {
-                    Icon(
-                        imageVector = if (isConfirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
-                        contentDescription = "Toggle password visibility"
-                    )
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+                ) {
+                    Text("${confirmPassword.length}/10")
+                    IconButton(onClick = onConfirmPasswordVisibilityChange) {
+                        Icon(
+                            imageVector = if (isConfirmPasswordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff,
+                            contentDescription = "Toggle password visibility"
+                        )
+                    }
                 }
             },
             visualTransformation = if (isConfirmPasswordVisible) VisualTransformation.None else PasswordVisualTransformation(),
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
         )
-
-        // Action Button
         Button(
+            enabled = buttonState,
             onClick = {
                 if (isPasswordAvailable) onUpdatePasswordClick()
                 else onSetPasswordClick()
@@ -203,16 +233,26 @@ fun SetPasswordContents(
                 .height(56.dp),
             shape = RoundedCornerShape(10.dp)
         ) {
-            val buttonText = when {
-                passWordState is PasswordResponse.Loading && isPasswordAvailable -> "Updating..."
-                passWordState is PasswordResponse.Loading -> "Saving..."
-                isPasswordAvailable -> "Update Password"
-                else -> "Set Password"
-            }
+            val buttonText = if (isPasswordAvailable) "Update Password" else "Set Password"
             Text(text = buttonText, style = MaterialTheme.typography.bodyLarge)
         }
+        if (isPasswordAvailable) {
+            OutlinedButton(
+                onClick = onDeletePasswordClick,
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(56.dp),
+                shape = RoundedCornerShape(10.dp),
+                border = BorderStroke(1.dp, Color.Red),
+                colors = ButtonDefaults.outlinedButtonColors(contentColor = Color.Red)
+            ) {
+                Icon(Icons.Default.Delete, contentDescription = "Delete", tint = Color.Red)
+                Spacer(modifier = Modifier.width(8.dp))
+                Text("Delete Password")
+            }
 
-        // Error Feedback
+        }
+
         if (passWordState is PasswordResponse.PasswordError) {
             Text(
                 text = passWordState.message,
@@ -240,5 +280,7 @@ fun SetPasswordScreenPreview() {
         isPasswordAvailable = false,
         passWordState = PasswordResponse.Uninitialized,
         isPasswordCorrect = false,
+        buttonState = false,
+        onDeletePasswordClick = {}
     )
 }

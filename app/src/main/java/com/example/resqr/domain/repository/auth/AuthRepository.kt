@@ -1,4 +1,4 @@
-package com.example.resqr.domain.repository.authRepository
+package com.example.resqr.domain.repository.auth
 
 import com.example.resqr.domain.model.authModel.AuthResponse
 

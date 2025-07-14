@@ -1,4 +1,4 @@
-package com.example.resqr.domain.repository.medicalRepository
+package com.example.resqr.domain.repository.medical
 
 import com.example.resqr.domain.model.medicalRecordModel.MedicalResponse
 import com.example.resqr.domain.model.medicalRecordModel.UserWithMedicalData

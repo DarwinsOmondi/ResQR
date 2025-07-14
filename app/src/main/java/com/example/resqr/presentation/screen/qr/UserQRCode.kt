@@ -109,7 +109,7 @@ fun QRScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 showBackButton = true,
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.navigate("victim_home_screen")},
                 title = "QR Code",
                 actions = {
                     Switch(

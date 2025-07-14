@@ -1,4 +1,4 @@
-package com.example.resqr.domain.repository.qrRepository
+package com.example.resqr.domain.repository.qr
 
 import com.example.resqr.domain.model.qrModel.QrResponse
 import kotlinx.coroutines.flow.Flow

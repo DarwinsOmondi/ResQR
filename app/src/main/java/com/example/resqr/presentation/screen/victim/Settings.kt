@@ -42,8 +42,8 @@ fun SettingsScreen(navController: NavController) {
     ) { innerPadding ->
         Column(modifier = Modifier.padding(innerPadding)) {
             SettingsContents(
-                onAccountClick = { navController.navigate("set_password_screen") },
-                onPrivacyClick = { /* Handle privacy click */ },
+                onAccountClick = { },
+                onPrivacyClick = { navController.navigate("set_password_screen")  },
                 onDisplayClick = { /* Handle display click */ },
                 onHelpClick = { /* Handle help click */ }
             )

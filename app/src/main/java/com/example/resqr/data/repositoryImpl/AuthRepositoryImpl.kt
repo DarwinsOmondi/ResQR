@@ -1,8 +1,8 @@
-package com.example.resqr.data.repository
+package com.example.resqr.data.repositoryImpl
 
 import com.example.resqr.domain.model.authModel.AuthResponse
 import com.example.resqr.domain.model.authModel.User
-import com.example.resqr.domain.repository.authRepository.AuthRepository
+import com.example.resqr.domain.repository.auth.AuthRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email

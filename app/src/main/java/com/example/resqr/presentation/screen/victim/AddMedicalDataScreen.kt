@@ -24,7 +24,6 @@ import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.MedicalServices
-import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.People
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Phone
@@ -37,7 +36,6 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -49,7 +47,6 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
@@ -73,7 +70,6 @@ import com.example.resqr.presentation.components.victim.SectionHeader
 import com.example.resqr.presentation.viewmodel.MedicalViewModel
 import com.example.resqr.presentation.viewmodel.UserViewModel
 import com.example.resqr.ui.theme.VictimTheme
-import kotlinx.coroutines.launch
 
 
 @Composable
@@ -83,10 +79,10 @@ fun AddMedicalDataScreen(navController: NavController) {
 
     val scrollState = rememberScrollState()
     val snackBarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
 
     val medicalState by medicalViewModel.medicalState.collectAsState()
     val userState by userViewModel.userState.collectAsState()
+
 
     val user = remember { mutableStateOf<User?>(null) }
 
@@ -172,7 +168,7 @@ fun AddMedicalDataScreen(navController: NavController) {
         topBar = {
             TopAppBar(
                 showBackButton = true,
-                onBackClick = { navController.popBackStack() },
+                onBackClick = { navController.navigate("victim_home_screen") },
                 title = "Medicals",
             )
         },
@@ -192,7 +188,9 @@ fun AddMedicalDataScreen(navController: NavController) {
                         formState = formState,
                         formActions = formActions,
                     )
+
                 }
+
 
                 is MedicalResponse.Uninitialized -> {
                     AddMedicalDataScreenContent(
@@ -201,6 +199,7 @@ fun AddMedicalDataScreen(navController: NavController) {
                         formState = formState,
                         formActions = formActions,
                     )
+
                 }
 
                 is MedicalResponse.Loading -> {
@@ -380,7 +379,6 @@ fun AddMedicalDataScreenContent(
         }
     }
 }
-
 
 @Preview(showBackground = true)
 @Composable

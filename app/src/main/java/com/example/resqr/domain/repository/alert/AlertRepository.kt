@@ -1,4 +1,4 @@
-package com.example.resqr.domain.repository.alertRepository
+package com.example.resqr.domain.repository.alert
 
 import com.example.resqr.domain.model.alertModel.Alert
 import com.example.resqr.domain.model.alertModel.AlertResponse

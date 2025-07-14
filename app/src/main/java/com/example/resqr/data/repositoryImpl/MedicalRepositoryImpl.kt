@@ -1,9 +1,9 @@
-package com.example.resqr.data.repository
+package com.example.resqr.data.repositoryImpl
 
 import android.util.Log
 import com.example.resqr.domain.model.medicalRecordModel.MedicalResponse
 import com.example.resqr.domain.model.medicalRecordModel.UserWithMedicalData
-import com.example.resqr.domain.repository.medicalRepository.MedicalRepository
+import com.example.resqr.domain.repository.medical.MedicalRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.Flow

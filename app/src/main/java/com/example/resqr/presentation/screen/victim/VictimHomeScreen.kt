@@ -4,6 +4,7 @@ import android.location.Geocoder
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.grid.GridCells
 import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
@@ -15,6 +16,7 @@ import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.QrCode
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material.icons.filled.WarningAmber
+import androidx.compose.material3.Button
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -22,6 +24,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextField
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -73,9 +76,12 @@ fun VictimHomeScreen(navController: NavController) {
     var currentUser by remember { mutableStateOf<User?>(null) }
     var userMedicalData by remember { mutableStateOf<UserWithMedicalData?>(null) }
     val userContact = userMedicalData?.medicalData?.emergencyContact?.firstOrNull()
+    val isPasswordAvailable by passwordViewModel.isPasswordAvailable.collectAsState()
+
 
     LaunchedEffect(Unit) {
         userViewModel.getUser()
+        passwordViewModel.resetUnlockState()
     }
 
     LaunchedEffect(userState) {
@@ -148,7 +154,8 @@ fun VictimHomeScreen(navController: NavController) {
                 victimLocation = victimLocation,
                 onToggleDialog = userViewModel::toggleAlertDialog,
                 onStopCountdown = alertViewModel::stopCountdownEarly,
-                onStartCountdown = alertViewModel::startCountdown
+                onStartCountdown = alertViewModel::startCountdown,
+                isPasswordAvailable = isPasswordAvailable
             )
         }
     }
@@ -164,6 +171,7 @@ fun VictimHomeScreenContent(
     onToggleDialog: () -> Unit,
     onStopCountdown: () -> Unit,
     onStartCountdown: () -> Unit,
+    isPasswordAvailable: Boolean
 ) {
     val actions = remember {
         listOf(
@@ -222,7 +230,12 @@ fun VictimHomeScreenContent(
                     onCardClick = {
                         when (action.third) {
                             "Medical Profile" -> navController.navigate(Routes.MEDICAL_PROFILE)
-                            "Share QR Code" -> navController.navigate(Routes.SHARE_QR)
+                            "Share QR Code" -> navController.navigate(
+                                Routes.shareQr(
+                                    isPasswordAvailable
+                                )
+                            )
+
                             "Call 911" -> navController.navigate(Routes.CALL_911)
                             "Update Location" -> navController.navigate(Routes.UPDATE_LOCATION)
                         }
@@ -267,14 +280,19 @@ fun VictimHomeScreenContentPreview() {
         victimLocation = "Nairobi, Kenya",
         onToggleDialog = {},
         onStopCountdown = {},
-        onStartCountdown = {}
+        onStartCountdown = {},
+        isPasswordAvailable = false
     )
 }
 
 
 object Routes {
     const val MEDICAL_PROFILE = "add_medical_data"
-    const val SHARE_QR = "show_qr"
     const val CALL_911 = "call_911"
     const val UPDATE_LOCATION = "update_location"
+
+    fun shareQr(showQrContent: Boolean): String {
+        return if (showQrContent) "medical_data_lock_screen" else "show_qr"
+    }
 }
+

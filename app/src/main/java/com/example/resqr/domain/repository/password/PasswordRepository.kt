@@ -1,4 +1,4 @@
-package com.example.resqr.domain.repository.passwordRepository
+package com.example.resqr.domain.repository.password
 
 import com.example.resqr.domain.model.passwordModel.PasswordResponse
 import kotlinx.coroutines.flow.Flow

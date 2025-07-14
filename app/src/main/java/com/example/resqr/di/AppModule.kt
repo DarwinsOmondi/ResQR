@@ -2,13 +2,13 @@ package com.example.resqr.di
 
 import com.example.resqr.BuildConfig
 import com.example.resqr.ResQRApp
-import com.example.resqr.data.local.PasswordDatabase
-import com.example.resqr.data.repository.AlertRepositoryImpl
-import com.example.resqr.data.repository.AuthRepositoryImpl
-import com.example.resqr.data.repository.MedicalRepositoryImpl
-import com.example.resqr.data.repository.PasswordRepositoryImpl
-import com.example.resqr.data.repository.QrRepositoryImpl
-import com.example.resqr.data.repository.UserRepositoryImpl
+import com.example.resqr.data.local.database.PasswordDatabase
+import com.example.resqr.data.repositoryImpl.AlertRepositoryImpl
+import com.example.resqr.data.repositoryImpl.AuthRepositoryImpl
+import com.example.resqr.data.repositoryImpl.MedicalRepositoryImpl
+import com.example.resqr.data.repositoryImpl.PasswordRepositoryImpl
+import com.example.resqr.data.repositoryImpl.QrRepositoryImpl
+import com.example.resqr.data.repositoryImpl.UserRepositoryImpl
 import com.example.resqr.domain.usecase.alert.AlertUseCase
 import com.example.resqr.domain.usecase.alert.GetAlertUseCase
 import com.example.resqr.domain.usecase.alert.SendAlertUseCase
