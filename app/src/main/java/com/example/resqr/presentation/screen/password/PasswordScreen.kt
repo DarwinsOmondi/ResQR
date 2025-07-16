@@ -10,14 +10,19 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Lock
+import androidx.compose.material.icons.filled.LockOpen
 import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.filled.VisibilityOff
+import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Icon
@@ -25,6 +30,8 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
@@ -43,7 +50,6 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import com.example.resqr.di.AppModule
-import com.example.resqr.domain.model.authModel.AuthResponse
 import com.example.resqr.domain.model.passwordModel.PasswordResponse
 import com.example.resqr.presentation.components.sharedComponents.TopAppBar
 import com.example.resqr.presentation.components.victim.SectionHeader
@@ -62,7 +68,8 @@ fun SetPasswordScreen(navController: NavController) {
     val isPasswordAvailable by passwordViewModel.isPasswordAvailable.collectAsState()
     val buttonState = password != null && confirmPassword != null
     val userViewModel: UserViewModel = AppModule.userViewModel
-    val userState by userViewModel.userState.collectAsState()
+    val backGroundPasswordState by passwordViewModel.backGroundPassword.collectAsState()
+    val backGroundPasswordIsNotNull = backGroundPasswordState.orEmpty()
     LaunchedEffect(Unit) {
         userViewModel.getUser()
         passwordViewModel.resetUnlockState()
@@ -81,7 +88,40 @@ fun SetPasswordScreen(navController: NavController) {
             TopAppBar(
                 title = "Settings",
                 showBackButton = true,
-                onBackClick = { navController.popBackStack() }
+                onBackClick = { navController.popBackStack() },
+                actions = {
+                    AssistChip(
+                        onClick = {
+                            passwordViewModel.updatePassword(
+                                userId = 1,
+                                password = backGroundPasswordIsNotNull,
+                                enabled = !isPasswordAvailable
+                            )
+                        },
+                        label = {
+                            if (isPasswordAvailable) {
+                                Text("Unlock Medical data")
+                            } else {
+                                Text("Lock Medical data")
+                            }
+                        },
+                        leadingIcon = {
+                            if (isPasswordAvailable) {
+                                Icon(
+                                    Icons.Filled.Lock,
+                                    contentDescription = "Localized description",
+                                    Modifier.size(AssistChipDefaults.IconSize)
+                                )
+                            } else {
+                                Icon(
+                                    Icons.Filled.LockOpen,
+                                    contentDescription = "Localized description",
+                                    Modifier.size(AssistChipDefaults.IconSize)
+                                )
+                            }
+                        }
+                    )
+                }
             )
         },
     ) { innerPadding ->
@@ -107,17 +147,24 @@ fun SetPasswordScreen(navController: NavController) {
                     if (!isCorrectPassword) {
                         Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                     } else {
-                        passwordViewModel.setPassword(userId = 1, password = passwordNotNull)
+                        passwordViewModel.setPassword(userId = 1, password = passwordNotNull, true)
                     }
                 },
                 onUpdatePasswordClick = {
                     if (!isCorrectPassword) {
                         Toast.makeText(context, "Passwords do not match", Toast.LENGTH_SHORT).show()
                     } else {
-                        passwordViewModel.updatePassword(userId = 1, password = passwordNotNull)
+                        passwordViewModel.updatePassword(
+                            userId = 1,
+                            password = passwordNotNull,
+                            true
+                        )
                     }
                 },
                 buttonState = buttonState,
+                onClearFields = {
+                    passwordViewModel.resetTextFields()
+                },
                 onDeletePasswordClick = {
                     passwordViewModel.deletePassword(userId = 1)
                 }
@@ -143,9 +190,9 @@ fun SetPasswordContents(
     isPasswordAvailable: Boolean = false,
     passWordState: PasswordResponse,
     isPasswordCorrect: Boolean = false,
+    onClearFields: () -> Unit,
     buttonState: Boolean
 ) {
-    val isPasswordExist = passWordState is PasswordResponse.GetPassword
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -227,6 +274,8 @@ fun SetPasswordContents(
             onClick = {
                 if (isPasswordAvailable) onUpdatePasswordClick()
                 else onSetPasswordClick()
+
+                onClearFields()
             },
             modifier = Modifier
                 .fillMaxWidth()
@@ -281,6 +330,7 @@ fun SetPasswordScreenPreview() {
         passWordState = PasswordResponse.Uninitialized,
         isPasswordCorrect = false,
         buttonState = false,
+        onClearFields = {},
         onDeletePasswordClick = {}
     )
 }

@@ -18,9 +18,9 @@ interface PasswordDao {
     @Query("DELETE FROM password_table WHERE userId = :userId")
     fun deletePasswordByUserId(userId: Int)
 
-    @Query("UPDATE password_table SET password = :newPassword WHERE userId = :userId")
-    fun updatePasswordByUserId(userId: Int, newPassword: String)
+    @Query("UPDATE password_table SET password = :newPassword, enabled = :enabled WHERE userId = :userId")
+    fun updatePasswordByUserId(userId: Int, newPassword: String, enabled: Boolean)
 
     @Query("SELECT COUNT(*) FROM password_table WHERE userId = :userId AND password = :encryptedPassword")
-    suspend fun isPasswordCorrect(userId: Int, encryptedPassword: String):Int
+    suspend fun isPasswordCorrect(userId: Int, encryptedPassword: String): Int
 }

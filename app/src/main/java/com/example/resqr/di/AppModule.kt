@@ -22,12 +22,12 @@ import com.example.resqr.domain.usecase.medical.GetMedicalDataUseCase
 import com.example.resqr.domain.usecase.medical.InsertMedicalDataUseCase
 import com.example.resqr.domain.usecase.medical.MedicalUseCases
 import com.example.resqr.domain.usecase.medical.UpdateMedicalDataUseCase
-import com.example.resqr.domain.usecase.password.DeletePasswordUseCase
-import com.example.resqr.domain.usecase.password.GetPasswordUseCase
-import com.example.resqr.domain.usecase.password.IsPasswordCorrectUseCase
-import com.example.resqr.domain.usecase.password.PasswordUseCase
-import com.example.resqr.domain.usecase.password.SavePasswordUseCase
-import com.example.resqr.domain.usecase.password.UpdatePasswordUseCase
+import com.example.resqr.domain.usecase.password.DeletePassword
+import com.example.resqr.domain.usecase.password.GetPassword
+import com.example.resqr.domain.usecase.password.IsPasswordCorrect
+import com.example.resqr.domain.usecase.password.Password
+import com.example.resqr.domain.usecase.password.SavePassword
+import com.example.resqr.domain.usecase.password.UpdatePassword
 import com.example.resqr.domain.usecase.qr.QrCodeUseCase
 import com.example.resqr.domain.usecase.user.DeleteUserUseCase
 import com.example.resqr.domain.usecase.user.GetUserUseCase
@@ -176,32 +176,32 @@ object AppModule {
     }
 
     //Password UseCase
-    val deletePasswordUseCase by lazy {
-        DeletePasswordUseCase(passwordRepositoryImpl)
+    val deletePassword by lazy {
+        DeletePassword(passwordRepositoryImpl)
     }
-    val getPasswordUseCase by lazy {
-        GetPasswordUseCase(passwordRepositoryImpl)
+    val getPassword by lazy {
+        GetPassword(passwordRepositoryImpl)
     }
 
     val isPassWordUseCase by lazy {
-        IsPasswordCorrectUseCase(passwordRepositoryImpl)
+        IsPasswordCorrect(passwordRepositoryImpl)
     }
 
-    val updatePasswordUseCase by lazy {
-        UpdatePasswordUseCase(passwordRepositoryImpl)
+    val updatePassword by lazy {
+        UpdatePassword(passwordRepositoryImpl)
     }
 
-    val savePasswordUseCase by lazy {
-        SavePasswordUseCase(passwordRepositoryImpl)
+    val savePassword by lazy {
+        SavePassword(passwordRepositoryImpl)
     }
 
-    val passwordUseCase by lazy {
-        PasswordUseCase(
-            deletePassword = deletePasswordUseCase,
-            getPassword = getPasswordUseCase,
+    val password by lazy {
+        Password(
+            deletePassword = deletePassword,
+            getPassword = getPassword,
             isPasswordCorrect = isPassWordUseCase,
-            updatePassword = updatePasswordUseCase,
-            savePassword = savePasswordUseCase
+            updatePassword = updatePassword,
+            savePassword = savePassword
         )
     }
 
@@ -225,6 +225,6 @@ object AppModule {
     }
 
     val passwordViewModel by lazy {
-        PasswordViewModel(passwordUseCase)
+        PasswordViewModel(password)
     }
 }

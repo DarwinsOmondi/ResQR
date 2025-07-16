@@ -18,33 +18,57 @@ class PasswordRepositoryImpl(private val passwordDao: PasswordDao) : PasswordRep
             val passwordEntity = withContext(Dispatchers.IO) {
                 passwordDao.getPasswordByUserId(userId)
             }
-            Log.d("PasswordRepositoryImpl", "Fetched password: ${passwordEntity?.password}")
             if (passwordEntity != null) {
-              //  val decryptedPassword = EncryptionUtils.decrypt(passwordEntity.password)
-                emit(PasswordResponse.GetPassword(passwordEntity.password))
+                emit(PasswordResponse.GetPassword(passwordEntity))
             } else {
-                emit(PasswordResponse.PasswordError("No password found for userId: $userId"))
+                emit(PasswordResponse.PasswordError(""))
             }
+            Log.d("PasswordRepositoryImpl", "Fetched password: $passwordEntity")
         } catch (e: Exception) {
-            Log.e("PasswordRepositoryImpl", "Failed to fetch password", e)
             emit(PasswordResponse.PasswordError(e.message ?: "Failed to fetch password"))
         }
     }
 
-    override fun savePassword(userId: Int, password: String): Flow<PasswordResponse> = flow {
+    override fun savePassword(
+        userId: Int,
+        password: String,
+        enabled: Boolean
+    ): Flow<PasswordResponse> = flow {
         emit(PasswordResponse.Loading)
         try {
-           // val encrypted = EncryptionUtils.encrypt(password)
+            val entity = PasswordEntity(userId = userId, password = password, enabled = enabled)
             withContext(Dispatchers.IO) {
-                passwordDao.insertPassword(PasswordEntity(userId = userId, password = password))
+                passwordDao.insertPassword(entity)
             }
-            Log.d("PasswordRepositoryImpl", "Password successfully saved for userId: $userId")
-            emit(PasswordResponse.GetPassword(password))
+            emit(PasswordResponse.GetPassword(entity))
         } catch (e: Exception) {
-            Log.e("PasswordRepositoryImpl", "Failed to save password", e)
             emit(PasswordResponse.PasswordError(e.message ?: "Failed to save password"))
         }
     }
+
+    override fun updatePassword(
+        userId: Int,
+        newPassword: String,
+        enabled: Boolean
+    ): Flow<PasswordResponse> = flow {
+        emit(PasswordResponse.Loading)
+        try {
+            withContext(Dispatchers.IO) {
+                passwordDao.updatePasswordByUserId(userId, newPassword, enabled)
+            }
+            val updatedPassword = withContext(Dispatchers.IO) {
+                passwordDao.getPasswordByUserId(userId)
+            }
+            if (updatedPassword != null) {
+                emit(PasswordResponse.GetPassword(updatedPassword))
+            } else {
+                emit(PasswordResponse.PasswordError("Failed to retrieve updated password"))
+            }
+        } catch (e: Exception) {
+            emit(PasswordResponse.PasswordError("Update failed: ${e.message}"))
+        }
+    }
+
 
     override fun deletePassword(userId: Int): Flow<PasswordResponse> = flow {
         emit(PasswordResponse.Loading)
@@ -52,38 +76,36 @@ class PasswordRepositoryImpl(private val passwordDao: PasswordDao) : PasswordRep
             withContext(Dispatchers.IO) {
                 passwordDao.deletePasswordByUserId(userId)
             }
-            emit(PasswordResponse.GetPassword(""))
+            emit(
+                PasswordResponse.GetPassword(
+                    PasswordEntity(
+                        userId = userId,
+                        password = "",
+                        enabled = false
+                    )
+                )
+            )
         } catch (e: Exception) {
-            Log.e("PasswordRepositoryImpl", "Failed to delete password", e)
             emit(PasswordResponse.PasswordError(e.message ?: "Failed to delete password"))
         }
     }
 
-    override fun updatePassword(userId: Int, newPassword: String): Flow<PasswordResponse> = flow {
-        emit(PasswordResponse.Loading)
-        try {
-         //   val encrypted = EncryptionUtils.encrypt(newPassword)
-            withContext(Dispatchers.IO) {
-                passwordDao.updatePasswordByUserId(userId, newPassword)
-            }
-            emit(PasswordResponse.GetPassword(newPassword))
-        } catch (e: Exception) {
-            Log.e("PasswordRepositoryImpl", "Failed to update password", e)
-            emit(PasswordResponse.PasswordError(e.message ?: "Failed to update password"))
-        }
-    }
 
-    override fun isPasswordCorrect(userId: Int, password: String): Flow<PasswordResponse> = flow {
+    override fun isPasswordCorrect(
+        userId: Int,
+        password: String,
+        enabled: Boolean
+    ): Flow<PasswordResponse> = flow {
         emit(PasswordResponse.Loading)
         try {
-         //   val encryptedPassword = EncryptionUtils.encrypt(password)
+            //   val encryptedPassword = EncryptionUtils.encrypt(password)
             val count = withContext(Dispatchers.IO) {
                 passwordDao.isPasswordCorrect(userId, password)
             }
             emit(PasswordResponse.PasswordSuccess(count > 0))
         } catch (e: Exception) {
             Log.e("PasswordRepositoryImpl", "Failed to check password", e)
-            emit(PasswordResponse.PasswordError(e.message ?: "Failed to check password"))
+            emit(PasswordResponse.PasswordError("Incorrect password"))
         }
     }
 

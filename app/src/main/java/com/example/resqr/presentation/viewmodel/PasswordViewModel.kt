@@ -3,12 +3,12 @@ package com.example.resqr.presentation.viewmodel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.resqr.domain.model.passwordModel.PasswordResponse
-import com.example.resqr.domain.usecase.password.PasswordUseCase
+import com.example.resqr.domain.usecase.password.Password
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class PasswordViewModel(private val passwordUseCase: PasswordUseCase) : ViewModel() {
+class PasswordViewModel(private val passwordUseCase: Password) : ViewModel() {
     private val _passwordState = MutableStateFlow<PasswordResponse>(PasswordResponse.Uninitialized)
     val passwordState: StateFlow<PasswordResponse> = _passwordState
 
@@ -17,6 +17,9 @@ class PasswordViewModel(private val passwordUseCase: PasswordUseCase) : ViewMode
 
     private val _unLockPassword = MutableStateFlow<String?>(null)
     val unLockPassword: StateFlow<String?> = _unLockPassword
+
+    private val _backGroundPassword = MutableStateFlow<String?>(null)
+    val backGroundPassword: StateFlow<String?> = _backGroundPassword
 
     private val _confirmPassword = MutableStateFlow<String?>(null)
     val confirmPassword: StateFlow<String?> = _confirmPassword
@@ -32,6 +35,7 @@ class PasswordViewModel(private val passwordUseCase: PasswordUseCase) : ViewMode
 
     private val _isUnlocked = MutableStateFlow(false)
     val isUnlocked: StateFlow<Boolean> = _isUnlocked
+
 
     fun togglePasswordVisibility() {
         _isPasswordVisible.value = !_isPasswordVisible.value
@@ -58,16 +62,19 @@ class PasswordViewModel(private val passwordUseCase: PasswordUseCase) : ViewMode
         _isConfirmPasswordVisible.value = !_isConfirmPasswordVisible.value
     }
 
-    fun setPassword(userId: Int, password: String) {
+
+    fun setPassword(userId: Int, password: String, enabled: Boolean) {
         viewModelScope.launch {
             _passwordState.value = PasswordResponse.Loading
             passwordUseCase.savePassword(
                 userId = userId,
-                password = password
+                password = password,
+                enabled = enabled
             ).collect { result ->
                 _passwordState.value = result
             }
         }
+        resetTextFields()
     }
 
     fun getPassword(userId: Int) {
@@ -75,8 +82,9 @@ class PasswordViewModel(private val passwordUseCase: PasswordUseCase) : ViewMode
             _passwordState.value = PasswordResponse.Loading
             passwordUseCase.getPassword(userId).collect { result ->
                 _passwordState.value = result
-                if (result is PasswordResponse.GetPassword && result.password.isNotEmpty()) {
-                    populateIsPasswordAvailable(result.password)
+                if (result is PasswordResponse.GetPassword && result.password.password.isNotEmpty()) {
+                    _backGroundPassword.value = result.password.password
+                    populateIsPasswordAvailable(result.password.enabled)
                 }
             }
         }
@@ -91,25 +99,28 @@ class PasswordViewModel(private val passwordUseCase: PasswordUseCase) : ViewMode
         }
     }
 
-    fun updatePassword(userId: Int, password: String) {
+    fun updatePassword(userId: Int, password: String, enabled: Boolean) {
         viewModelScope.launch {
             _passwordState.value = PasswordResponse.Loading
-            passwordUseCase.updatePassword(userId, password).collect { result ->
+            passwordUseCase.updatePassword(userId, password, enabled).collect { result ->
                 _passwordState.value = result
             }
+            resetTextFields()
         }
     }
 
-    fun isPasswordCorrect(userId: Int, password: String) {
+
+    fun isPasswordCorrect(userId: Int, password: String, disabled: Boolean) {
         viewModelScope.launch {
             _passwordState.value = PasswordResponse.Loading
-            passwordUseCase.isPasswordCorrect(userId, password).collect { result ->
+            passwordUseCase.isPasswordCorrect(userId, password, disabled).collect { result ->
                 _passwordState.value = result
                 if (result is PasswordResponse.PasswordSuccess && result.isCorrect) {
                     _isUnlocked.value = true
                     _password.value = ""
                 }
             }
+            resetTextFields()
         }
     }
 
@@ -121,13 +132,13 @@ class PasswordViewModel(private val passwordUseCase: PasswordUseCase) : ViewMode
         return password == confirmPassword
     }
 
-    fun populateIsPasswordAvailable(password: String?) {
-        _isPasswordAvailable.value = password != null
+    fun populateIsPasswordAvailable(enabled: Boolean) {
+        _isPasswordAvailable.value = enabled
     }
 
     fun resetTextFields() {
-        _password.value = ""
-        _confirmPassword.value = ""
+        onPasswordChanged("")
+        onConfirmPasswordChanged("")
 
     }
 }

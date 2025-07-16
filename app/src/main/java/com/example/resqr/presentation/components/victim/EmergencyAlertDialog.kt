@@ -57,7 +57,6 @@ fun EmergencyAlertDialog(
             verticalArrangement = Arrangement.spacedBy(16.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            // Alert Banner with Dismiss Button
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -96,7 +95,6 @@ fun EmergencyAlertDialog(
                 }
             }
 
-            // Countdown Timer
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -122,7 +120,6 @@ fun EmergencyAlertDialog(
                 }
             }
 
-            // Location Info
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -157,7 +154,6 @@ fun EmergencyAlertDialog(
                 )
             }
 
-            // Call and Cancel Buttons
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(12.dp)
@@ -185,7 +181,6 @@ fun EmergencyAlertDialog(
                 }
             }
 
-            // Audio Instruction Box
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

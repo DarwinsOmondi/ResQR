@@ -70,11 +70,15 @@ fun QrLockScreen(navController: NavController) {
                 password = unLockPassword ?: "",
                 onPasswordChange = { passwordViewModel.onUnlockPasswordChanged(it) },
                 onPasswordSubmit = {
-                    passwordViewModel.isPasswordCorrect(1, unLockPassword ?: "")
+                    passwordViewModel.isPasswordCorrect(
+                        1, unLockPassword ?: "",
+                        disabled = true
+                    )
                 },
                 isPasswordVisible = passWordVisibility,
                 onPasswordVisibilityChange = { passwordViewModel.togglePasswordVisibility() },
                 passwordState = passWordState,
+                onClearFields = { passwordViewModel.resetTextFields() },
                 buttonState = buttonState
             )
         }
@@ -89,6 +93,7 @@ fun MedicalDataLockScreen(
     onPasswordSubmit: () -> Unit,
     isPasswordVisible: Boolean,
     onPasswordVisibilityChange: () -> Unit,
+    onClearFields: () -> Unit,
     buttonState: Boolean
 ) {
     Column(
@@ -138,7 +143,10 @@ fun MedicalDataLockScreen(
 
             Button(
                 enabled = buttonState,
-                onClick = { onPasswordSubmit() },
+                onClick = {
+                    onPasswordSubmit()
+                    onClearFields()
+                },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(56.dp),
@@ -183,6 +191,7 @@ fun PasswordScreenPreview() {
         isPasswordVisible = true,
         onPasswordVisibilityChange = {},
         passwordState = PasswordResponse.Uninitialized,
+        onClearFields = {},
         buttonState = true
     )
 }

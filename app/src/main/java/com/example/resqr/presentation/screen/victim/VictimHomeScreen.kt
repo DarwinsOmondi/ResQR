@@ -1,6 +1,8 @@
 package com.example.resqr.presentation.screen.victim
 
 import android.location.Geocoder
+import android.speech.tts.TextToSpeech
+import android.widget.Toast
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
@@ -34,6 +36,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
+import com.example.resqr.R
 import com.example.resqr.di.AppModule
 import com.example.resqr.domain.model.authModel.User
 import com.example.resqr.domain.model.medicalRecordModel.EmergencyContact
@@ -52,6 +55,7 @@ import com.example.resqr.presentation.viewmodel.PasswordViewModel
 import com.example.resqr.presentation.viewmodel.QrViewModel
 import com.example.resqr.presentation.viewmodel.UserViewModel
 import com.example.resqr.utils.LocationService
+import java.util.Locale
 
 @Composable
 fun VictimHomeScreen(navController: NavController) {
@@ -77,6 +81,32 @@ fun VictimHomeScreen(navController: NavController) {
     var userMedicalData by remember { mutableStateOf<UserWithMedicalData?>(null) }
     val userContact = userMedicalData?.medicalData?.emergencyContact?.firstOrNull()
     val isPasswordAvailable by passwordViewModel.isPasswordAvailable.collectAsState()
+    var textToSpeech by remember { mutableStateOf<TextToSpeech?>(null) }
+
+    LaunchedEffect(Unit) {
+        val tts = TextToSpeech(context) { status ->
+            if (status == TextToSpeech.SUCCESS) {
+                textToSpeech?.language = Locale.getDefault()
+            } else {
+                Toast.makeText(context, "TextToSpeech initialization failed", Toast.LENGTH_SHORT)
+                    .show()
+            }
+        }
+        textToSpeech = tts
+    }
+
+    if (countdownFinished) {
+        alertViewModel.onDirectVictim(
+            "Stay calm. Help is on the way. Keep your phone nearby",
+            textToSpeech = textToSpeech,
+            context = context
+        )
+    }
+    DisposableEffect(Unit) {
+        onDispose {
+            textToSpeech?.shutdown()
+        }
+    }
 
 
     LaunchedEffect(Unit) {

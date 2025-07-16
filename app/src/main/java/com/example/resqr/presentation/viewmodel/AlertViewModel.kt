@@ -1,6 +1,9 @@
 package com.example.resqr.presentation.viewmodel
 
+import android.content.Context
+import android.os.Bundle
 import android.os.CountDownTimer
+import android.speech.tts.TextToSpeech
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.resqr.domain.model.alertModel.Alert
@@ -132,6 +135,21 @@ class AlertViewModel(private val alertUseCase: AlertUseCase) : ViewModel() {
             alertUseCase.updateAlertUseCase(alert).collect { result ->
                 _alertState.value = result
             }
+        }
+    }
+
+    fun onDirectVictim(text: String, textToSpeech: TextToSpeech?, context: Context) {
+        val params = Bundle().apply {
+            putFloat(TextToSpeech.Engine.KEY_PARAM_VOLUME, 0.8f)
+            putFloat(TextToSpeech.Engine.KEY_PARAM_PAN, -0.5f)
+        }
+        if (text.isNotEmpty()) {
+            textToSpeech?.speak(
+                text,
+                TextToSpeech.QUEUE_FLUSH,
+                params,
+                null
+            )
         }
     }
 }

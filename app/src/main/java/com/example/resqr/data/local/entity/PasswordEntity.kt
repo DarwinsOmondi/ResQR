@@ -8,5 +8,6 @@ data class PasswordEntity(
     @PrimaryKey(autoGenerate = true)
     val id: Int = 0,
     val userId: Int,
-    val password: String
+    val password: String,
+    val enabled: Boolean = true,
 )
