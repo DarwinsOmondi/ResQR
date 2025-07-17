@@ -17,16 +17,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.resqr.QRCode.QRCodeScreen
-import com.example.resqr.clienthome.ClientHomeScreen
-import com.example.resqr.clientprofile.ProfileScreen
 import com.example.resqr.permissionRequest.PermissionRequestScreen
-import com.example.resqr.responderhome.QRScannerScreen
-import com.example.resqr.responderhome.ResponderHomeUi
-import com.example.resqr.signin.SignInScreen
 import com.example.resqr.ui.theme.ResQRTheme
 import com.google.zxing.integration.android.IntentResult
-import androidx.compose.runtime.State
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.toArgb
 import androidx.compose.ui.platform.LocalView
@@ -39,7 +32,6 @@ import com.example.resqr.presentation.screen.qr.QRScreen
 import com.example.resqr.presentation.screen.responder.ResponderHomeScreen
 import com.example.resqr.presentation.screen.sharedScreens.SplashScreen
 import com.example.resqr.presentation.screen.victim.AddMedicalDataScreen
-import com.example.resqr.presentation.screen.victim.MedicalDataLockScreen
 import com.example.resqr.presentation.screen.victim.QrLockScreen
 import com.example.resqr.presentation.screen.victim.SettingsScreen
 import com.example.resqr.presentation.screen.victim.VictimHomeScreen
@@ -55,8 +47,6 @@ class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         setTheme(R.style.Theme_ResQR)
         super.onCreate(savedInstanceState)
-
-        // Register the ActivityResultLauncher
         qrScanLauncher =
             registerForActivityResult(ActivityResultContracts.StartActivityForResult()) { result ->
                 val intentResult: IntentResult? =
@@ -85,7 +75,7 @@ class MainActivity : ComponentActivity() {
                     val useDarkIcons = !isSystemInDarkTheme()
                     WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
                         useDarkIcons
-                    ResQR(qrScanLauncher, scannedResultState)
+                    ResQR()
                 }
             }
         }
@@ -94,10 +84,7 @@ class MainActivity : ComponentActivity() {
 
     @RequiresApi(Build.VERSION_CODES.O)
     @Composable
-    fun ResQR(
-        qrScanLauncher: ActivityResultLauncher<Intent>,
-        scannedResult: State<String?>
-    ) {
+    fun ResQR() {
         val navController = rememberNavController()
 
         NavHost(
@@ -107,26 +94,8 @@ class MainActivity : ComponentActivity() {
             composable("signup") {
                 SignUp(navController)
             }
-            composable("signin") {
-                SignInScreen(navController)
-            }
-            composable("home") {
-                ClientHomeScreen(navController)
-            }
-            composable("profile") {
-                ProfileScreen(navController)
-            }
-            composable("qrcode") {
-                QRCodeScreen(navController)
-            }
             composable("permission_request") {
                 PermissionRequestScreen(navController)
-            }
-            composable("responder_home") {
-                ResponderHomeUi(navController, qrScanLauncher, scannedResult)
-            }
-            composable("qr_scanner_screen") {
-                QRScannerScreen()
             }
             composable("splashscreen") {
                 SplashScreen(navController)
@@ -152,7 +121,7 @@ class MainActivity : ComponentActivity() {
             composable("set_password_screen") {
                 SetPasswordScreen(navController)
             }
-            composable("medical_data_lock_screen"){
+            composable("medical_data_lock_screen") {
                 QrLockScreen(navController)
             }
         }
