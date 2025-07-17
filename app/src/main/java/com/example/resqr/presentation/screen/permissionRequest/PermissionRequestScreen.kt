@@ -1,4 +1,4 @@
-package com.example.resqr.permissionRequest
+package com.example.resqr.presentation.screen.permissionRequest
 
 import android.Manifest
 import android.content.Intent
@@ -102,7 +102,7 @@ fun PermissionRequestScreen(navController: NavHostController) {
                 confirmButton = {
                     Button(onClick = {
                         context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            data = Uri.fromParts("package", context.packageName, null)
+                            Intent.setData = Uri.fromParts("package", context.packageName, null)
                         })
                         showSettingsDialog = false
                     }) {

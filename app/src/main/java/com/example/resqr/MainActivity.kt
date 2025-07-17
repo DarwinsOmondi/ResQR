@@ -17,7 +17,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
-import com.example.resqr.permissionRequest.PermissionRequestScreen
+import com.example.resqr.presentation.screen.permissionRequest.PermissionRequestScreen
 import com.example.resqr.ui.theme.ResQRTheme
 import com.google.zxing.integration.android.IntentResult
 import androidx.compose.ui.graphics.Color
@@ -70,8 +70,6 @@ class MainActivity : ComponentActivity() {
                 if (!view.isInEditMode) {
                     val window = (view.context as Activity).window
                     window.statusBarColor = Color.Transparent.toArgb()
-
-                    // For dark status bar icons on light background (reverse for dark)
                     val useDarkIcons = !isSystemInDarkTheme()
                     WindowCompat.getInsetsController(window, view).isAppearanceLightStatusBars =
                         useDarkIcons
