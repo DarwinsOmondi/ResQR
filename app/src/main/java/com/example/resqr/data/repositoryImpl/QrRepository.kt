@@ -10,7 +10,7 @@ import com.google.zxing.qrcode.QRCodeWriter
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class QrRepositoryImpl : QRCodeRepository {
+class QrRepository : QRCodeRepository {
     override suspend fun getQRCode(
         data: String,
         size: Int

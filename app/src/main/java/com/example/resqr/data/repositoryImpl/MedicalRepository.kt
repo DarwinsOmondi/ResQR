@@ -9,7 +9,7 @@ import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class MedicalRepositoryImpl(
+class MedicalRepository(
     private val supabaseClient: SupabaseClient
 ) : MedicalRepository {
 

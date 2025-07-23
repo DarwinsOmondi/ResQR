@@ -9,7 +9,7 @@ import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class UserRepositoryImpl(private val supabaseClient: SupabaseClient) : UserRepository {
+class UserRepository(private val supabaseClient: SupabaseClient) : UserRepository {
     override fun insertUser(user: User): Flow<UserResponse> = flow {
         emit(UserResponse.Loading)
         try {

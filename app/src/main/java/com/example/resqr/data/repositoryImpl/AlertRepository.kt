@@ -9,7 +9,7 @@ import io.github.jan.supabase.postgrest.postgrest
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 
-class AlertRepositoryImpl(private val supabaseClient: SupabaseClient) : AlertRepository {
+class AlertRepository(private val supabaseClient: SupabaseClient) : AlertRepository {
 
     override fun sendAlert(alert: Alert): Flow<AlertResponse> = flow {
         emit(AlertResponse.Loading)

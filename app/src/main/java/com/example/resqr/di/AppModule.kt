@@ -3,12 +3,12 @@ package com.example.resqr.di
 import com.example.resqr.BuildConfig
 import com.example.resqr.ResQRApp
 import com.example.resqr.data.local.database.PasswordDatabase
-import com.example.resqr.data.repositoryImpl.AlertRepositoryImpl
-import com.example.resqr.data.repositoryImpl.AuthRepositoryImpl
-import com.example.resqr.data.repositoryImpl.MedicalRepositoryImpl
+import com.example.resqr.data.repositoryImpl.AlertRepository
+import com.example.resqr.data.repositoryImpl.AuthRepository
+import com.example.resqr.data.repositoryImpl.MedicalRepository
 import com.example.resqr.data.repositoryImpl.PasswordRepositoryImpl
-import com.example.resqr.data.repositoryImpl.QrRepositoryImpl
-import com.example.resqr.data.repositoryImpl.UserRepositoryImpl
+import com.example.resqr.data.repositoryImpl.QrRepository
+import com.example.resqr.data.repositoryImpl.UserRepository
 import com.example.resqr.domain.usecase.alert.AlertUseCase
 import com.example.resqr.domain.usecase.alert.GetAlertUseCase
 import com.example.resqr.domain.usecase.alert.SendAlertUseCase
@@ -64,24 +64,24 @@ object AppModule {
     }
 
     //REPOSITORY IMPLEMENTATIONS
-    val authRepositoryImpl by lazy {
-        AuthRepositoryImpl(supabaseClient)
+    val authRepository by lazy {
+        AuthRepository(supabaseClient)
     }
 
-    val medicalRepositoryImpl by lazy {
-        MedicalRepositoryImpl(supabaseClient)
+    val medicalRepository by lazy {
+        MedicalRepository(supabaseClient)
     }
 
-    val userRepositoryImpl by lazy {
-        UserRepositoryImpl(supabaseClient)
+    val userRepository by lazy {
+        UserRepository(supabaseClient)
     }
 
-    val alertRepositoryImpl by lazy {
-        AlertRepositoryImpl(supabaseClient)
+    val alertRepository by lazy {
+        AlertRepository(supabaseClient)
     }
 
-    val qrRepositoryImpl by lazy {
-        QrRepositoryImpl()
+    val qrRepository by lazy {
+        QrRepository()
     }
 
     val passwordRepositoryImpl by lazy {
@@ -91,30 +91,30 @@ object AppModule {
     //USE CASES
     //Auth
     val signUpUseCase by lazy {
-        SignUpUseCase(authRepositoryImpl)
+        SignUpUseCase(authRepository)
     }
     val signInUseCase by lazy {
-        SignInUseCase(authRepositoryImpl)
+        SignInUseCase(authRepository)
     }
     val getCurrentUserUseCase by lazy {
-        GetCurrentUserUseCase(authRepositoryImpl)
+        GetCurrentUserUseCase(authRepository)
     }
 
     //MEDICAL USE CASES
     val insertMedicalDataUseCase by lazy {
-        InsertMedicalDataUseCase(medicalRepositoryImpl)
+        InsertMedicalDataUseCase(medicalRepository)
     }
     val getMedicalDataUseCase by lazy {
-        GetMedicalDataUseCase(medicalRepositoryImpl)
+        GetMedicalDataUseCase(medicalRepository)
     }
     val getCurrentUserMedicalDataUseCase by lazy {
-        GetCurrentUserMedicalDataUseCase(medicalRepositoryImpl)
+        GetCurrentUserMedicalDataUseCase(medicalRepository)
     }
     val updateMedicalDataUseCase by lazy {
-        UpdateMedicalDataUseCase(medicalRepositoryImpl)
+        UpdateMedicalDataUseCase(medicalRepository)
     }
     val deleteMedicalDataUseCase by lazy {
-        DeleteMedicalDataUseCase(medicalRepositoryImpl)
+        DeleteMedicalDataUseCase(medicalRepository)
     }
     val medicalUseCases by lazy {
         MedicalUseCases(
@@ -128,16 +128,16 @@ object AppModule {
 
     //USER USE CASES
     val insertUserUseCase by lazy {
-        InsertUserUseCase(userRepositoryImpl)
+        InsertUserUseCase(userRepository)
     }
     val getUserUseCase by lazy {
-        GetUserUseCase(userRepositoryImpl)
+        GetUserUseCase(userRepository)
     }
     val updateUserUseCase by lazy {
-        UpdateUserUseCase(userRepositoryImpl)
+        UpdateUserUseCase(userRepository)
     }
     val deleteUserUseCase by lazy {
-        DeleteUserUseCase(userRepositoryImpl)
+        DeleteUserUseCase(userRepository)
     }
 
     val userUseCase by lazy {
@@ -152,13 +152,13 @@ object AppModule {
 
     //ALERT USE CASES
     val sendAlertUseCase by lazy {
-        SendAlertUseCase(alertRepositoryImpl)
+        SendAlertUseCase(alertRepository)
     }
     val getAlertUseCase by lazy {
-        GetAlertUseCase(alertRepositoryImpl)
+        GetAlertUseCase(alertRepository)
     }
     val updateAlertUseCase by lazy {
-        UpdateAlertUseCase(alertRepositoryImpl)
+        UpdateAlertUseCase(alertRepository)
     }
     val alertUseCase by lazy {
         AlertUseCase(
@@ -171,7 +171,7 @@ object AppModule {
     //QRCode UseCse
     val qrCodeUseCase by lazy {
         QrCodeUseCase(
-            qrCodeRepository = qrRepositoryImpl
+            qrCodeRepository = qrRepository
         )
     }
 

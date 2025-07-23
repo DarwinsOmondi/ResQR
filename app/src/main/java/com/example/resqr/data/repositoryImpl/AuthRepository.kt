@@ -11,7 +11,7 @@ import kotlinx.serialization.json.JsonPrimitive
 import kotlinx.serialization.json.buildJsonObject
 import kotlin.String
 
-class AuthRepositoryImpl(private val supabaseClient: SupabaseClient) : AuthRepository {
+class AuthRepository(private val supabaseClient: SupabaseClient) : AuthRepository {
 
     @OptIn(ExperimentalSerializationApi::class)
     override suspend fun signUp(
@@ -51,7 +51,6 @@ class AuthRepositoryImpl(private val supabaseClient: SupabaseClient) : AuthRepos
         password: String
     ): AuthResponse {
         return try {
-            // Sign in
             supabaseClient.auth.signInWith(Email) {
                 this.email = email
                 this.password = password
