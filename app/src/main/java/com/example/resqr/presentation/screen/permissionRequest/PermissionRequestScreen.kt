@@ -102,7 +102,7 @@ fun PermissionRequestScreen(navController: NavHostController) {
                 confirmButton = {
                     Button(onClick = {
                         context.startActivity(Intent(Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
-                            Intent.setData = Uri.fromParts("package", context.packageName, null)
+                            setData(Uri.fromParts("package", context.packageName, null))
                         })
                         showSettingsDialog = false
                     }) {

@@ -1,4 +1,4 @@
-[versions]
+ [versions]
 agp = "8.9.2"
 kotlin = "2.0.21"
 coreKtx = "1.16.0"
